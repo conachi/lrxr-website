@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOUD RABBIT x ROSES | Official Website</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- SortableJS for Drag and Drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <style>
+        /* --- カスタムスタイル --- */
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Noto Sans JP', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* --- フォント設定 --- */
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* --- ネオン & グリッチエフェクト --- */
+        .neon-text-red {
+            text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 40px #ff0000;
+        }
+        .neon-box-red {
+            box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000, inset 0 0 5px #ff0000;
+        }
+        .nav-link.active {
+            color: #ff0000;
+            text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-3px, 3px); }
+            40% { transform: translate(-3px, -3px); }
+            60% { transform: translate(3px, 3px); }
+            80% { transform: translate(3px, -3px); }
+            100% { transform: translate(0); }
+        }
+        .glitch:hover {
+            animation: glitch 0.2s infinite;
+        }
+
+        /* --- タイプライターアニメーション --- */
+        #typewriter {
+            overflow: hidden;
+            border-right: .15em solid #ff0000;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .15em;
+            animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+        }
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #ff0000; }
+        }
+
+        /* --- 背景 & オーバーレイ --- */
+        .hero-bg {
+            background-image: url('lrxr_5nin_karu.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .card-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 0, 0, 0.7);
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .card-overlay:hover::before {
+            opacity: 1;
+        }
+
+        /* --- スクロールバー --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ff0000;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cc0000;
+        }
+        
+        /* --- ローディング画面 --- */
+        #loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+            opacity: 1;
+            visibility: visible;
+        }
+        #loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        @keyframes noise {
+            0%, 100% { background-position: 0 0; }
+            10% { background-position: -5% -10%; }
+            20% { background-position: -15% 5%; }
+            30% { background-position: 7% -25%; }
+            40% { background-position: 20% 25%; }
+            50% { background-position: -25% 10%; }
+            60% { background-position: 15% 5%; }
+            70% { background-position: 0 15%; }
+            80% { background-position: 25% 35%; }
+            90% { background-position: -10% 10%; }
+        }
+        .noise::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.05;
+            animation: noise 0.2s infinite;
+        }
+
+        /* Aspect Ratio for video */
+        .aspect-w-16 {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+        }
+        .aspect-h-9 > iframe, .aspect-h-9 > div {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* SortableJS Dragging Styles */
+        .sortable-ghost {
+            opacity: 0.4;
+            background-color: #4a5568;
+        }
+        .sortable-chosen {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- ローディング画面 -->
+    <div id="loader">
+        <div class="relative w-full text-center">
+            <div class="noise"></div>
+            <h1 class="text-3xl md:text-5xl font-orbitron neon-text-red glitch">L R x R</h1>
+        </div>
+    </div>
+
+    <!-- ヘッダー -->
+    <header id="header" class="bg-black/80 backdrop-blur-sm p-4 fixed w-full top-0 z-[999] h-20">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#home" class="text-2xl font-orbitron font-bold glitch nav-link" data-section="home">LOUD RABBIT x ROSES</a>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#home" class="nav-link active" data-section="home">HOME</a>
+                <a href="#profile" class="nav-link" data-section="profile">PROFILE</a>
+                <a href="#contents" class="nav-link" data-section="contents">CONTENTS</a>
+                <a href="#news" class="nav-link" data-section="news">NEWS</a>
+                <a href="#goods" class="nav-link" data-section="goods">GOODS</a>
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden z-50">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </div>
+        <!-- モバイルメニュー -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-0 left-0 w-full h-screen bg-black/95 flex flex-col items-center justify-center space-y-8 text-2xl">
+            <a href="#home" class="nav-link" data-section="home">HOME</a>
+            <a href="#profile" class="nav-link" data-section="profile">PROFILE</a>
+            <a href="#contents" class="nav-link" data-section="contents">CONTENTS</a>
+            <a href="#news" class="nav-link" data-section="news">NEWS</a>
+            <a href="#goods" class="nav-link" data-section="goods">GOODS</a>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <!-- HOMEセクション -->
+        <section id="home" class="page-section min-h-screen flex items-center justify-center text-center hero-bg relative group">
+             <button class="edit-image-btn absolute top-24 right-5 bg-black/70 text-white px-4 py-2 rounded-lg opacity-50 hover:opacity-100 transition-opacity z-10" data-target="hero-bg">背景を編集</button>
+            <div class="bg-black/50 p-8 rounded-lg relative z-0 group">
+                <div id="typewriter-container" class="inline-block">
+                     <h1 id="typewriter" class="text-2xl md:text-4xl font-orbitron">The code screams, the melody bleeds.</h1>
+                </div>
+                <button id="edit-catchphrase-btn" class="absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-sm z-20">編集</button>
+            </div>
+        </section>
+
+        <div class="container mx-auto p-4 md:p-8">
+            <div id="home-content" class="space-y-20 pt-16">
+                 <!-- NEWS -->
+                 <div class="text-center">
+                    <h2 class="text-4xl font-orbitron mb-8 border-b-2 border-red-500 inline-block pb-2">LATEST NEWS</h2>
+                    <div id="home-news-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Home news will be dynamically inserted here -->
+                    </div>
+                </div>
+
+                <!-- MOVIE -->
+                <div class="text-center">
+                     <h2 class="text-4xl font-orbitron mb-8 border-b-2 border-blue-500 inline-block pb-2">LATEST MOVIE</h2>
+                     <div id="movie-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Movie Card 1 -->
+                        <div id="movie-1" class="bg-gray-900 border border-blue-500/50 rounded-lg overflow-hidden group relative">
+                            <div class="aspect-w-16 aspect-h-9">
+                                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg truncate">1st Single "Rebellion Code" MV</h3>
+                            </div>
+                            <button class="edit-movie-btn absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-sm" data-target="movie-1">編集</button>
+                        </div>
+                        <!-- Movie Card 2 -->
+                        <div id="movie-2" class="bg-gray-900 border border-blue-500/50 rounded-lg overflow-hidden group relative">
+                            <div class="aspect-w-16 aspect-h-9">
+                                 <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg truncate">MV Teaser</h3>
+                            </div>
+                             <button class="edit-movie-btn absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-sm" data-target="movie-2">編集</button>
+                        </div>
+                        <!-- Movie Card 3 -->
+                        <div id="movie-3" class="bg-gray-900 border border-blue-500/50 rounded-lg overflow-hidden group relative">
+                            <div class="aspect-w-16 aspect-h-9">
+                                 <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg truncate">Behind the Scenes</h3>
+                            </div>
+                             <button class="edit-movie-btn absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-sm" data-target="movie-3">編集</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- PROFILEセクション -->
+        <section id="profile" class="page-section hidden min-h-screen">
+            <div class="container mx-auto p-4 md:p-8">
+                <!-- キービジュアルをタイトルの上に移動 -->
+                <div class="relative group mb-12 max-w-4xl mx-auto">
+                    <img id="profile-key-visual" src="lrxr_5nin_karu.jpg" alt="[キャラクターのキービジュアル]" class="w-full h-auto rounded-lg border-2 border-green-500/50">
+                    <button class="edit-image-btn absolute top-2 right-2 bg-black/70 text-white px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" data-target="profile-key-visual">編集</button>
+                </div>
+
+                <h2 class="text-5xl font-orbitron mb-12 text-center border-b-2 border-green-500 inline-block pb-2">PROFILE</h2>
+                
+                <!-- 紹介文を追加 -->
+                <div class="max-w-3xl mx-auto mb-16 text-center text-gray-300 leading-relaxed space-y-4">
+                    <p>"LOUD RABBIT x ROSES は、Nu-metal・Trap・Rap を融合した唯一無二のガールズバンド。<br>バラのように艶やかで、ウサギのように激しく跳ねるサウンド。"</p>
+                    <p>"攻撃的でありながらも繊細――その矛盾が生み出す新しい美。<br>彼女たちの痛みと怒りは、静寂を切り裂き、闇に響き渡る。"</p>
+                </div>
+                
+                <!-- メンバー紹介 -->
+                <h3 class="text-4xl font-orbitron mb-12 text-center">MEMBERS</h3>
+                <div id="members-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 justify-center">
+                    <!-- Member cards will be dynamically inserted here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTENTSセクション -->
+        <section id="contents" class="page-section hidden min-h-screen">
+            <div class="container mx-auto p-4 md:p-8">
+                <h2 class="text-5xl font-orbitron mb-12 text-center border-b-2 border-blue-500 inline-block pb-2">CONTENTS</h2>
+
+                <!-- SHORT MOVIE -->
+                 <div class="max-w-5xl mx-auto mb-20">
+                     <h3 class="text-3xl font-orbitron mb-6 text-blue-400">SHORT MOVIE</h3>
+                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
+                            <div class="text-center text-gray-500">
+                                <p class="text-xl font-orbitron">COMING SOON</p>
+                            </div>
+                        </div>
+                        <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
+                            <div class="text-center text-gray-500">
+                                <p class="text-xl font-orbitron">COMING SOON</p>
+                            </div>
+                        </div>
+                        <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
+                            <div class="text-center text-gray-500">
+                                <p class="text-xl font-orbitron">COMING SOON</p>
+                            </div>
+                        </div>
+                        <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
+                            <div class="text-center text-gray-500">
+                                <p class="text-xl font-orbitron">COMING SOON</p>
+                            </div>
+                        </div>
+                        <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
+                            <div class="text-center text-gray-500">
+                                <p class="text-xl font-orbitron">COMING SOON</p>
+                            </div>
+                        </div>
+                        <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
+                            <div class="text-center text-gray-500">
+                                <p class="text-xl font-orbitron">COMING SOON</p>
+                            </div>
+                        </div>
+                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEWSセクション -->
+        <section id="news" class="page-section hidden min-h-screen">
+            <div class="container mx-auto p-4 md:p-8">
+                <h2 class="text-5xl font-orbitron mb-12 text-center border-b-2 border-white/80 inline-block pb-2">NEWS</h2>
+                <div class="text-right mb-8">
+                    <button id="add-news-btn" class="bg-white/80 hover:bg-white text-black font-bold py-2 px-4 rounded">
+                        新規追加
+                    </button>
+                </div>
+                <div id="news-list-container" class="space-y-4 max-w-4xl mx-auto">
+                    <!-- News items will be dynamically inserted here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- GOODSセクション -->
+        <section id="goods" class="page-section hidden min-h-screen">
+            <div class="container mx-auto p-4 md:p-8">
+                <h2 class="text-5xl font-orbitron mb-12 text-center border-b-2 border-red-500 inline-block pb-2">GOODS</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- COMING SOON -->
+                    <div class="bg-black border border-dashed border-gray-700 flex items-center justify-center aspect-square">
+                        <div class="text-center text-gray-500">
+                             <p class="text-2xl font-orbitron">COMING SOON</p>
+                             <p>...</p>
+                        </div>
+                    </div>
+                     <!-- COMING SOON -->
+                    <div class="bg-black border border-dashed border-gray-700 flex items-center justify-center aspect-square">
+                        <div class="text-center text-gray-500">
+                             <p class="text-2xl font-orbitron">COMING SOON</p>
+                             <p>...</p>
+                        </div>
+                    </div>
+                     <!-- COMING SOON -->
+                    <div class="bg-black border border-dashed border-gray-700 flex items-center justify-center aspect-square">
+                        <div class="text-center text-gray-500">
+                             <p class="text-2xl font-orbitron">COMING SOON</p>
+                             <p>...</p>
+                        </div>
+                    </div>
+                     <!-- COMING SOON -->
+                    <div class="bg-black border border-dashed border-gray-700 flex items-center justify-center aspect-square">
+                        <div class="text-center text-gray-500">
+                             <p class="text-2xl font-orbitron">COMING SOON</p>
+                             <p>...</p>
+                        </div>
+                    </div>
+                     <!-- COMING SOON -->
+                    <div class="bg-black border border-dashed border-gray-700 flex items-center justify-center aspect-square">
+                        <div class="text-center text-gray-500">
+                             <p class="text-2xl font-orbitron">COMING SOON</p>
+                             <p>...</p>
+                        </div>
+                    </div>
+                     <!-- COMING SOON -->
+                    <div class="bg-black border border-dashed border-gray-700 flex items-center justify-center aspect-square">
+                        <div class="text-center text-gray-500">
+                             <p class="text-2xl font-orbitron">COMING SOON</p>
+                             <p>...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 画像編集モーダル -->
+    <div id="image-edit-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100]">
+        <div class="bg-gray-900 p-8 rounded-lg border border-red-500 w-full max-w-md">
+            <h3 class="text-2xl font-orbitron mb-4">画像の更新</h3>
+            <p class="text-gray-400 mb-4">PCから画像ファイルを選択してください:</p>
+            <input type="file" id="image-file-input" class="w-full bg-black border border-gray-700 p-2 rounded text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-red-600 file:text-white hover:file:bg-red-700" accept="image/*">
+            <div class="flex justify-end space-x-4 mt-6">
+                <button id="cancel-edit-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded transition-colors">キャンセル</button>
+                <button id="save-edit-btn" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition-colors">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 動画編集モーダル -->
+    <div id="movie-edit-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100]">
+        <div class="bg-gray-900 p-8 rounded-lg border border-blue-500 w-full max-w-md">
+            <h3 class="text-2xl font-orbitron mb-4">動画の更新</h3>
+            <div class="space-y-4">
+                <div>
+                    <label for="movie-url-input" class="block text-sm font-medium text-gray-400 mb-1">YouTube埋め込みURL</label>
+                    <input type="text" id="movie-url-input" class="w-full bg-black border border-gray-700 p-2 rounded text-white" placeholder="https://www.youtube.com/embed/...">
+                </div>
+                <div>
+                    <label for="movie-title-input" class="block text-sm font-medium text-gray-400 mb-1">動画タイトル</label>
+                    <input type="text" id="movie-title-input" class="w-full bg-black border border-gray-700 p-2 rounded text-white" placeholder="MV Title">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-4 mt-6">
+                <button id="cancel-movie-edit-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded transition-colors">キャンセル</button>
+                <button id="save-movie-edit-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded transition-colors">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ニュース編集モーダル -->
+    <div id="news-edit-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100]">
+        <div class="bg-gray-900 p-8 rounded-lg border border-red-500 w-full max-w-md">
+            <h3 id="news-modal-title" class="text-2xl font-orbitron mb-4">ニュースの更新</h3>
+            <div class="space-y-4">
+                <div>
+                    <label for="news-date-input" class="block text-sm font-medium text-gray-400 mb-1">日付</label>
+                    <input type="text" id="news-date-input" class="w-full bg-black border border-gray-700 p-2 rounded text-white" placeholder="2025.01.01">
+                </div>
+                <div>
+                    <label for="news-title-input" class="block text-sm font-medium text-gray-400 mb-1">タイトル</label>
+                    <input type="text" id="news-title-input" class="w-full bg-black border border-gray-700 p-2 rounded text-white" placeholder="News Title">
+                </div>
+                <div>
+                    <label for="news-category-input" class="block text-sm font-medium text-gray-400 mb-1">カテゴリ</label>
+                    <select id="news-category-input" class="w-full bg-black border border-gray-700 p-2 rounded text-white">
+                        <option value="RELEASE">RELEASE</option>
+                        <option value="OTHER">OTHER</option>
+                        <option value="MEDIA">MEDIA</option>
+                        <option value="GOODS">GOODS</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="news-desc-input" class="block text-sm font-medium text-gray-400 mb-1">詳細</label>
+                    <textarea id="news-desc-input" class="w-full bg-black border border-gray-700 p-2 rounded text-white" rows="3" placeholder="News description..."></textarea>
+                </div>
+            </div>
+            <div class="flex justify-between items-center mt-6">
+                <button id="delete-news-btn" class="px-4 py-2 text-red-400 hover:bg-red-900/50 rounded transition-colors">削除</button>
+                <div class="space-x-4">
+                    <button id="cancel-news-edit-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded transition-colors">キャンセル</button>
+                    <button id="save-news-edit-btn" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition-colors">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- キャッチフレーズ編集モーダル -->
+    <div id="catchphrase-edit-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100]">
+        <div class="bg-gray-900 p-8 rounded-lg border border-red-500 w-full max-w-md">
+            <h3 class="text-2xl font-orbitron mb-4">キャッチフレーズの更新</h3>
+            <div class="space-y-4">
+                <div>
+                    <label for="catchphrase-input" class="block text-sm font-medium text-gray-400 mb-1">新しいテキスト</label>
+                    <input type="text" id="catchphrase-input" class="w-full bg-black border border-gray-700 p-2 rounded text-white" placeholder="Catchphrase text...">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-4 mt-6">
+                <button id="cancel-catchphrase-edit-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded transition-colors">キャンセル</button>
+                <button id="save-catchphrase-edit-btn" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition-colors">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- メンバー編集モーダル -->
+    <div id="member-edit-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[100]">
+        <div class="bg-gray-900 p-8 rounded-lg border border-green-500 w-full max-w-md">
+            <h3 class="text-2xl font-orbitron mb-4">メンバー情報の更新</h3>
+            <div class="space-y-4">
+                <div>
+                    <label for="member-name-input" class="block text-sm font-medium text-gray-400 mb-1">名前</label>
+                    <input type="text" id="member-name-input" class="w-full bg-black border border-gray-700 p-2 rounded text-white">
+                </div>
+                <div>
+                    <label for="member-like-input" class="block text-sm font-medium text-gray-400 mb-1">LIKE</label>
+                    <input type="text" id="member-like-input" class="w-full bg-black border border-gray-700 p-2 rounded text-white">
+                </div>
+                <div>
+                    <label for="member-dislike-input" class="block text-sm font-medium text-gray-400 mb-1">DISLIKE</label>
+                    <input type="text" id="member-dislike-input" class="w-full bg-black border border-gray-700 p-2 rounded text-white">
+                </div>
+                <div>
+                    <label for="member-quote-input" class="block text-sm font-medium text-gray-400 mb-1">QUOTE</label>
+                    <input type="text" id="member-quote-input" class="w-full bg-black border border-gray-700 p-2 rounded text-white">
+                </div>
+            </div>
+            <div class="flex justify-end space-x-4 mt-6">
+                <button id="cancel-member-edit-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded transition-colors">キャンセル</button>
+                <button id="save-member-edit-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded transition-colors">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 確認モーダル -->
+    <div id="confirm-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-[101]">
+        <div class="bg-gray-900 p-8 rounded-lg border border-yellow-500 w-full max-w-sm">
+            <h3 class="text-xl font-orbitron mb-4">確認</h3>
+            <p id="confirm-modal-text" class="text-gray-300 mb-6">この操作を続けてもよろしいですか？</p>
+            <div class="flex justify-end space-x-4">
+                <button id="confirm-cancel-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded transition-colors">キャンセル</button>
+                <button id="confirm-ok-btn" class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded transition-colors">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- フッター -->
+    <footer class="bg-gray-900/50 border-t border-red-500/30 mt-20 py-8">
+        <div class="container mx-auto text-center text-gray-400">
+            <div class="flex justify-center space-x-6 mb-4">
+                <a href="#" class="hover:text-red-400 transition-colors">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.71v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"/></svg>
+                </a>
+                <a href="#" class="hover:text-red-400 transition-colors">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.013-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 016.345 2.525c.636-.247 1.363-.416 2.427-.465C9.795 2.013 10.148 2 12.315 2zm-1.002 6.363a4.142 4.142 0 100 8.284 4.142 4.142 0 000-8.284zm-6.427 1.122a1.139 1.139 0 100 2.278 1.139 1.139 0 000-2.278z" clip-rule="evenodd" /></svg>
+                </a>
+                <a href="#" class="hover:text-red-400 transition-colors">
+                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.78 22 12 22 12s0 3.22-.42 4.814a2.506 2.506 0 0 1-1.768 1.768c-1.594.42-7.812.42-7.812.42s-6.218 0-7.812-.42a2.506 2.506 0 0 1-1.768-1.768C2 15.22 2 12 2 12s0-3.22.42-4.814a2.506 2.506 0 0 1 1.768-1.768C5.782 5 12 5 12 5s6.218 0 7.812.418ZM15.194 12 10 15.194v-6.388L15.194 12Z" clip-rule="evenodd" /></svg>
+                </a>
+            </div>
+            <p>&copy; 2025 LOUD RABBIT x ROSES. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // --- IndexedDB for Image Storage ---
+            const dbName = 'LRxR_ImageDB';
+            const storeName = 'imageStore';
+            let db;
+
+            function initDB() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(dbName, 1);
+                    request.onupgradeneeded = event => {
+                        const dbInstance = event.target.result;
+                        if (!dbInstance.objectStoreNames.contains(storeName)) {
+                            dbInstance.createObjectStore(storeName);
+                        }
+                    };
+                    request.onsuccess = event => { db = event.target.result; resolve(db); };
+                    request.onerror = event => { console.error("IndexedDB error:", event.target.error); reject(event.target.error); };
+                });
+            }
+
+            function setImageInDB(key, blob) {
+                if (!db) return Promise.reject("DB not initialized");
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([storeName], 'readwrite');
+                    const store = transaction.objectStore(storeName);
+                    const request = store.put(blob, key);
+                    transaction.oncomplete = () => resolve();
+                    transaction.onerror = event => reject(event.target.error);
+                });
+            }
+
+            function getImageFromDB(key) {
+                if (!db) return Promise.reject("DB not initialized");
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([storeName], 'readonly');
+                    const store = transaction.objectStore(storeName);
+                    const request = store.get(key);
+                    request.onsuccess = event => resolve(event.target.result);
+                    request.onerror = event => reject(event.target.error);
+                });
+            }
+
+            await initDB();
+
+            // --- General Setup ---
+            const loader = document.getElementById('loader');
+            window.addEventListener('load', () => setTimeout(() => loader.classList.add('hidden'), 500));
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pageSections = document.querySelectorAll('.page-section');
+            const mainContent = document.getElementById('main-content');
+            const homeContent = document.getElementById('home-content');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            function navigateTo(sectionId) {
+                const isHome = sectionId === 'home';
+                pageSections.forEach(section => section.classList.toggle('hidden', section.id !== sectionId));
+                homeContent.style.display = isHome ? 'block' : 'none';
+                mainContent.style.paddingTop = isHome ? '0' : '5rem';
+                navLinks.forEach(link => link.classList.toggle('active', link.dataset.section === sectionId));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                mobileMenu.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+
+            navLinks.forEach(link => link.addEventListener('click', e => { e.preventDefault(); navigateTo(link.dataset.section); }));
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                document.body.style.overflow = mobileMenu.classList.contains('hidden') ? '' : 'hidden';
+            });
+
+            // --- Confirm Modal ---
+            const confirmModal = document.getElementById('confirm-modal');
+            const confirmModalText = document.getElementById('confirm-modal-text');
+            const confirmOkBtn = document.getElementById('confirm-ok-btn');
+            const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+
+            function showConfirm(message) {
+                return new Promise(resolve => {
+                    confirmModalText.textContent = message;
+                    confirmModal.classList.remove('hidden');
+                    confirmOkBtn.onclick = () => { confirmModal.classList.add('hidden'); resolve(true); };
+                    confirmCancelBtn.onclick = () => { confirmModal.classList.add('hidden'); resolve(false); };
+                });
+            }
+
+            // --- Image Editing ---
+            const imageModal = document.getElementById('image-edit-modal');
+            const cancelImageBtn = document.getElementById('cancel-edit-btn');
+            const saveImageBtn = document.getElementById('save-edit-btn');
+            const fileInput = document.getElementById('image-file-input');
+            const editImageBtns = document.querySelectorAll('.edit-image-btn');
+            let currentImageTargetId = null;
+
+            async function loadImages() {
+                const imageTargets = ['hero-bg', 'profile-key-visual', 'profile-yuki-visual', 'profile-akari-visual', 'profile-mei-visual', 'profile-riko-visual', 'profile-sora-visual'];
+                for (const targetId of imageTargets) {
+                    try {
+                        const imageBlob = await getImageFromDB(`${targetId}-image`);
+                        if (imageBlob) {
+                            const url = URL.createObjectURL(imageBlob);
+                            const element = document.getElementById(targetId) || document.querySelector(`.${targetId}`);
+                            if (targetId === 'hero-bg') element.style.backgroundImage = `url('${url}')`;
+                            else element.src = url;
+                        }
+                    } catch (error) { console.error(`Failed to load image ${targetId} from DB`, error); }
+                }
+            }
+
+            editImageBtns.forEach(btn => btn.addEventListener('click', () => {
+                currentImageTargetId = btn.dataset.target;
+                fileInput.value = '';
+                imageModal.classList.remove('hidden');
+            }));
+            cancelImageBtn.addEventListener('click', () => { imageModal.classList.add('hidden'); currentImageTargetId = null; });
+            saveImageBtn.addEventListener('click', async () => {
+                const file = fileInput.files[0];
+                if (file && currentImageTargetId) {
+                    try {
+                        const targetIdForSave = currentImageTargetId;
+                        await setImageInDB(`${targetIdForSave}-image`, file);
+                        const newUrl = URL.createObjectURL(file);
+                        const targetElement = document.getElementById(targetIdForSave) || document.querySelector('.' + targetIdForSave);
+                        if (targetIdForSave === 'hero-bg') targetElement.style.backgroundImage = `url('${newUrl}')`;
+                        else targetElement.src = newUrl;
+                    } catch (error) {
+                        console.error("Failed to save image to DB", error);
+                        alert("画像の保存に失敗しました。容量が大きすぎる可能性があります。");
+                    }
+                }
+                imageModal.classList.add('hidden');
+                currentImageTargetId = null;
+                fileInput.value = '';
+            });
+
+            // --- Movie Editing ---
+            const movieModal = document.getElementById('movie-edit-modal');
+            const cancelMovieBtn = document.getElementById('cancel-movie-edit-btn');
+            const saveMovieBtn = document.getElementById('save-movie-edit-btn');
+            const movieUrlInput = document.getElementById('movie-url-input');
+            const movieTitleInput = document.getElementById('movie-title-input');
+            let currentMovieTargetId = null;
+
+            function loadMovies() {
+                document.querySelectorAll('#movie-list > div').forEach(card => {
+                    const cardId = card.id;
+                    const url = localStorage.getItem(`${cardId}-url`);
+                    const title = localStorage.getItem(`${cardId}-title`);
+                    if (url) card.querySelector('iframe').src = url;
+                    if (title) card.querySelector('h3').textContent = title;
+                });
+            }
+
+            document.querySelectorAll('.edit-movie-btn').forEach(btn => btn.addEventListener('click', (e) => {
+                currentMovieTargetId = e.currentTarget.dataset.target;
+                const targetCard = document.getElementById(currentMovieTargetId);
+                movieUrlInput.value = targetCard.querySelector('iframe').src;
+                movieTitleInput.value = targetCard.querySelector('h3').textContent;
+                movieModal.classList.remove('hidden');
+            }));
+            cancelMovieBtn.addEventListener('click', () => { movieModal.classList.add('hidden'); currentMovieTargetId = null; });
+            saveMovieBtn.addEventListener('click', () => {
+                if (currentMovieTargetId) {
+                    const newUrl = movieUrlInput.value;
+                    const newTitle = movieTitleInput.value;
+                    const targetCard = document.getElementById(currentMovieTargetId);
+                    targetCard.querySelector('iframe').src = newUrl;
+                    targetCard.querySelector('h3').textContent = newTitle;
+                    localStorage.setItem(`${currentMovieTargetId}-url`, newUrl);
+                    localStorage.setItem(`${currentMovieTargetId}-title`, newTitle);
+                }
+                movieModal.classList.add('hidden');
+                currentMovieTargetId = null;
+            });
+            
+            // --- News Editing ---
+            let newsData = [];
+            const defaultNewsData = [
+                { id: 'news-1', date: '2025.10.01', title: '1st Single "Rebellion Code" 配信開始', desc: 'デビュー曲となる「Rebellion Code」が各種音楽配信サービスにてリリース。', category: 'RELEASE' },
+                { id: 'news-2', date: '2025.09.28', title: '公式サイトオープン', desc: 'LOUD RABBIT x ROSESの公式ウェブサイトが本日より公開されました。', category: 'OTHER' },
+                { id: 'news-3', date: '2025.09.25', title: '公式YouTubeチャンネル開設', desc: '初のMVを公開予定。チャンネル登録をしてお待ちください。', category: 'MEDIA' },
+                { id: 'news-4', date: '2025.09.20', title: 'ファーストグッズ "GENESIS" Collection 発売決定', desc: '公式サイト開設を記念し、初のオフィシャルグッズの発売が決定。詳細はGOODSページにて近日公開。', category: 'GOODS' }
+            ];
+            const newsModal = document.getElementById('news-edit-modal');
+            const newsModalTitle = document.getElementById('news-modal-title');
+            const cancelNewsBtn = document.getElementById('cancel-news-edit-btn');
+            const saveNewsBtn = document.getElementById('save-news-edit-btn');
+            const deleteNewsBtn = document.getElementById('delete-news-btn');
+            const addNewsBtn = document.getElementById('add-news-btn');
+            const newsDateInput = document.getElementById('news-date-input');
+            const newsTitleInput = document.getElementById('news-title-input');
+            const newsDescInput = document.getElementById('news-desc-input');
+            const newsCategoryInput = document.getElementById('news-category-input');
+            let currentNewsId = null;
+            
+            function saveNews() { localStorage.setItem('newsData', JSON.stringify(newsData)); }
+
+            function renderNews() {
+                const savedNews = localStorage.getItem('newsData');
+                newsData = savedNews ? JSON.parse(savedNews) : defaultNewsData;
+                const homeNewsContainer = document.getElementById('home-news-grid');
+                const newsPageContainer = document.getElementById('news-list-container');
+                homeNewsContainer.innerHTML = '';
+                newsPageContainer.innerHTML = '';
+
+                newsData.slice(0, 3).forEach(item => {
+                    homeNewsContainer.innerHTML += `<div id="home-${item.id}" class="bg-gray-900 border border-red-500/50 p-4 relative overflow-hidden card-overlay cursor-pointer group"><div class="relative z-10"><p class="news-date text-red-400 text-sm">${item.date}</p><h3 class="news-title text-xl font-bold mt-2">${item.title}</h3><p class="news-desc text-gray-400 mt-2 text-sm">${item.desc}</p></div></div>`;
+                });
+
+                newsData.forEach(item => {
+                    const categoryColors = { RELEASE: 'red', OTHER: 'blue', MEDIA: 'green', GOODS: 'yellow' };
+                    const color = categoryColors[item.category] || 'gray';
+                    newsPageContainer.innerHTML += `<div class="group md:flex items-start space-x-0 md:space-x-8 relative p-4 -m-4 rounded-lg hover:bg-white/5"><div class="md:w-1/4 mb-2 md:mb-0"><p class="text-gray-400">${item.date}</p><p class="font-bold text-${color}-400">[${item.category}]</p></div><div class="md:w-3/4"><h3 class="text-2xl font-bold">${item.title}</h3><p class="mt-2 text-gray-300">${item.desc}</p></div><div class="absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity"><button class="edit-news-btn p-2 bg-gray-700 rounded-full hover:bg-blue-500" data-id="${item.id}"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 5.232z"></path></svg></button><button class="delete-news-btn p-2 bg-gray-700 rounded-full hover:bg-red-500" data-id="${item.id}"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></div></div>`;
+                });
+                attachNewsActionListeners();
+            }
+
+            function openNewsModal(newsId = null) {
+                currentNewsId = newsId;
+                if (newsId) {
+                    newsModalTitle.textContent = 'ニュースの更新';
+                    const item = newsData.find(i => i.id === newsId);
+                    newsDateInput.value = item.date;
+                    newsTitleInput.value = item.title;
+                    newsDescInput.value = item.desc;
+                    newsCategoryInput.value = item.category;
+                    deleteNewsBtn.classList.remove('hidden');
+                } else {
+                    newsModalTitle.textContent = 'ニュースの新規追加';
+                    [newsDateInput, newsTitleInput, newsDescInput].forEach(i => i.value = '');
+                    newsCategoryInput.value = 'RELEASE';
+                    deleteNewsBtn.classList.add('hidden');
+                }
+                newsModal.classList.remove('hidden');
+            }
+
+            function attachNewsActionListeners() {
+                document.querySelectorAll('.edit-news-btn').forEach(btn => btn.onclick = (e) => openNewsModal(e.currentTarget.dataset.id));
+                document.querySelectorAll('.delete-news-btn').forEach(btn => btn.onclick = async (e) => {
+                    const idToDelete = e.currentTarget.dataset.id;
+                    if (await showConfirm('このニュースを削除してもよろしいですか？')) {
+                        newsData = newsData.filter(item => item.id !== idToDelete);
+                        saveNews();
+                        renderNews();
+                    }
+                });
+            }
+            
+            cancelNewsBtn.addEventListener('click', () => newsModal.classList.add('hidden'));
+            addNewsBtn.addEventListener('click', () => openNewsModal());
+            saveNewsBtn.addEventListener('click', () => {
+                const newDataItem = { date: newsDateInput.value, title: newsTitleInput.value, desc: newsDescInput.value, category: newsCategoryInput.value };
+                if (currentNewsId) {
+                    const index = newsData.findIndex(i => i.id === currentNewsId);
+                    if (index > -1) newsData[index] = { ...newsData[index], ...newDataItem };
+                } else {
+                    newsData.unshift({ id: 'news-' + Date.now(), ...newDataItem });
+                }
+                saveNews();
+                renderNews();
+                newsModal.classList.add('hidden');
+            });
+            deleteNewsBtn.addEventListener('click', async () => {
+                if (currentNewsId && await showConfirm('このニュースを削除してもよろしいですか？')) {
+                    newsData = newsData.filter(i => i.id !== currentNewsId);
+                    saveNews();
+                    renderNews();
+                    newsModal.classList.add('hidden');
+                }
+            });
+
+            // --- Member Editing ---
+            let membersData = [];
+            const defaultMembersData = [
+                 { id: 'yuki', name: 'YUKI', like: '静寂、古典文学、チェス', dislike: '予測不可能なエラー、過度な感傷', quote: '全ての事象は、コードで記述できる' },
+                 { id: 'akari', name: 'AKARI', like: 'ライブの爆音、スパイシーフード、ネオン街', dislike: '退屈、ルール、甘いもの', quote: '壊して、また創ればいいでしょ？' },
+                 { id: 'mei', name: 'MEI', like: '雨音、ジャンクパーツ、猫', dislike: '直射日光、人混み、空虚な言葉', quote: '……別に' },
+                 { id: 'riko', name: 'RIKO', like: 'ダークウェブの情報、エナジードリンク、皮肉', dislike: 'ファイアウォール、嘘、早起き', quote: 'そのセキュリティ、冗談でしょ？' },
+                 { id: 'sora', name: 'SORA', like: '星空、仮想ペット、優しいメロディ', dislike: 'バグ、争い、孤独', quote: '歌があれば、独りじゃないから……' }
+            ];
+            const memberModal = document.getElementById('member-edit-modal');
+            const cancelMemberBtn = document.getElementById('cancel-member-edit-btn');
+            const saveMemberBtn = document.getElementById('save-member-edit-btn');
+            const memberNameInput = document.getElementById('member-name-input');
+            const memberLikeInput = document.getElementById('member-like-input');
+            const memberDislikeInput = document.getElementById('member-dislike-input');
+            const memberQuoteInput = document.getElementById('member-quote-input');
+            const membersGrid = document.getElementById('members-grid');
+            let currentMemberId = null;
+
+            function saveMembersData() { localStorage.setItem('membersData', JSON.stringify(membersData)); }
+
+            function renderMembers() {
+                const savedData = localStorage.getItem('membersData');
+                membersData = savedData ? JSON.parse(savedData) : defaultMembersData;
+                const savedOrder = localStorage.getItem('membersOrder');
+                if (savedOrder) {
+                    const order = JSON.parse(savedOrder);
+                    membersData.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+                }
+                membersGrid.innerHTML = '';
+                membersData.forEach(member => {
+                    membersGrid.innerHTML += `
+                        <div data-member-id="${member.id}" class="bg-gray-900/50 border border-green-500/30 rounded-lg overflow-hidden flex flex-col cursor-grab">
+                            <div class="relative group">
+                                <img id="profile-${member.id}-visual" src="https://placehold.co/600x600/000000/ffffff?text=${member.name.toUpperCase()}" alt="${member.name}" class="w-full h-auto">
+                                <button class="edit-image-btn absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-sm" data-target="profile-${member.id}-visual">編集</button>
+                            </div>
+                            <div class="p-6 flex-grow relative group/info">
+                                <h4 class="text-2xl font-orbitron text-green-400 member-name">${member.name}</h4>
+                                <ul class="mt-4 text-gray-300 space-y-2 text-sm">
+                                    <li><strong class="text-white">LIKE:</strong> <span class="member-like">${member.like}</span></li>
+                                    <li><strong class="text-white">DISLIKE:</strong> <span class="member-dislike">${member.dislike}</span></li>
+                                    <li><strong class="text-white">QUOTE:</strong> <span class="member-quote">${member.quote}</span></li>
+                                </ul>
+                                <button class="edit-member-btn absolute top-2 right-2 p-2 bg-gray-700 rounded-full opacity-0 group-hover/info:opacity-100 transition-opacity" data-id="${member.id}">
+                                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 5.232z"></path></svg>
+                                </button>
+                            </div>
+                        </div>`;
+                });
+                attachMemberActionListeners();
+                loadImages(); // Reload images for newly created elements
+            }
+            
+            function openMemberModal(memberId) {
+                currentMemberId = memberId;
+                const member = membersData.find(m => m.id === memberId);
+                memberNameInput.value = member.name;
+                memberLikeInput.value = member.like;
+                memberDislikeInput.value = member.dislike;
+                memberQuoteInput.value = member.quote;
+                memberModal.classList.remove('hidden');
+            }
+
+            function attachMemberActionListeners() {
+                 document.querySelectorAll('.edit-member-btn').forEach(btn => btn.onclick = (e) => openMemberModal(e.currentTarget.dataset.id));
+                 // Re-attach image edit listeners for members
+                 document.querySelectorAll('#members-grid .edit-image-btn').forEach(btn => btn.addEventListener('click', (e) => {
+                    currentImageTargetId = e.currentTarget.dataset.target;
+                    fileInput.value = '';
+                    imageModal.classList.remove('hidden');
+                 }));
+            }
+
+            cancelMemberBtn.addEventListener('click', () => memberModal.classList.add('hidden'));
+            saveMemberBtn.addEventListener('click', () => {
+                if(currentMemberId) {
+                    const index = membersData.findIndex(m => m.id === currentMemberId);
+                    if (index > -1) {
+                        membersData[index].name = memberNameInput.value;
+                        membersData[index].like = memberLikeInput.value;
+                        membersData[index].dislike = memberDislikeInput.value;
+                        membersData[index].quote = memberQuoteInput.value;
+                    }
+                    saveMembersData();
+                    renderMembers(); // Re-render to show changes
+                }
+                memberModal.classList.add('hidden');
+            });
+            
+            if (membersGrid) {
+                new Sortable(membersGrid, {
+                    animation: 150,
+                    onEnd: function () {
+                        const newOrder = Array.from(membersGrid.children).map(card => card.dataset.memberId);
+                        localStorage.setItem('membersOrder', JSON.stringify(newOrder));
+                        // Reorder the data array to match the new DOM order
+                        membersData.sort((a, b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
+                        saveMembersData();
+                    }
+                });
+            }
+
+            // --- Catchphrase Editing ---
+            const catchphraseModal = document.getElementById('catchphrase-edit-modal');
+            const editCatchphraseBtn = document.getElementById('edit-catchphrase-btn');
+            const cancelCatchphraseBtn = document.getElementById('cancel-catchphrase-edit-btn');
+            const saveCatchphraseBtn = document.getElementById('save-catchphrase-edit-btn');
+            const catchphraseInput = document.getElementById('catchphrase-input');
+            const typewriterEl = document.getElementById('typewriter');
+
+            function loadCatchphrase() {
+                const saved = localStorage.getItem('catchphrase');
+                if (saved) typewriterEl.textContent = saved;
+            }
+
+            editCatchphraseBtn.addEventListener('click', () => {
+                catchphraseInput.value = typewriterEl.textContent;
+                catchphraseModal.classList.remove('hidden');
+            });
+            cancelCatchphraseBtn.addEventListener('click', () => catchphraseModal.classList.add('hidden'));
+            saveCatchphraseBtn.addEventListener('click', () => {
+                const newText = catchphraseInput.value;
+                typewriterEl.textContent = newText;
+                localStorage.setItem('catchphrase', newText);
+                catchphraseModal.classList.add('hidden');
+                typewriterEl.style.animation = 'none';
+                typewriterEl.offsetHeight;
+                typewriterEl.style.animation = null;
+            });
+
+            // --- Initial Load ---
+            navigateTo('home');
+            renderMembers();
+            await loadImages(); // loadImages needs to be called after renderMembers now
+            loadMovies();
+            renderNews();
+            loadCatchphrase();
+        });
+    </script>
+</body>
+</html>
+
