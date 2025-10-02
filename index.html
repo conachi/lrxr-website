@@ -222,7 +222,7 @@
                  <!-- NEWS -->
                  <div class="text-center">
                     <h2 class="text-4xl font-orbitron mb-8 border-b-2 border-red-500 inline-block pb-2">LATEST NEWS</h2>
-                    <div id="home-news-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div id="home-news-grid" class="flex flex-wrap gap-8 justify-center">
                         <!-- Home news will be dynamically inserted here -->
                     </div>
                 </div>
@@ -817,7 +817,7 @@
                 newsPageContainer.innerHTML = '';
 
                 newsData.slice(0, 3).forEach(item => {
-                    homeNewsContainer.innerHTML += `<div id="home-${item.id}" class="bg-gray-900 border border-red-500/50 p-4 relative overflow-hidden card-overlay cursor-pointer group"><div class="relative z-10"><p class="news-date text-red-400 text-sm">${item.date}</p><h3 class="news-title text-xl font-bold mt-2">${item.title}</h3><p class="news-desc text-gray-400 mt-2 text-sm">${item.desc}</p></div></div>`;
+                    homeNewsContainer.innerHTML += `<div id="home-${item.id}" class="w-full sm:w-2/5 lg:w-[30%] bg-gray-900 border border-red-500/50 p-4 relative overflow-hidden card-overlay cursor-pointer group"><div class="relative z-10"><p class="news-date text-red-400 text-sm">${item.date}</p><h3 class="news-title text-xl font-bold mt-2">${item.title}</h3><p class="news-desc text-gray-400 mt-2 text-sm">${item.desc}</p></div></div>`;
                 });
 
                 newsData.forEach(item => {
@@ -1094,7 +1094,6 @@
                 socialLinkFormModal.classList.add('hidden');
             });
             
-            // This button is in the main management modal but should trigger a delete on the form modal's context
             deleteSocialLinkBtn.addEventListener('click', async () => {
                 if(currentSocialLinkId && await showConfirm('このリンクを削除しますか？')) {
                     socialLinksData = socialLinksData.filter(l => l.id !== currentSocialLinkId);
