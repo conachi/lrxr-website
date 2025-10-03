@@ -169,17 +169,16 @@
             cursor: grabbing;
         }
         
+        /* --- 編集モード用スタイル --- */
         .edit-control {
-            display: none;
+            display: none !important;
         }
         body.edit-mode .edit-control {
-            display: block;
+            display: block !important;
         }
-         body.edit-mode .group:hover .edit-control {
-            opacity: 1;
-        }
-         body.edit-mode .group\/info:hover .edit-control {
-            opacity: 1;
+        body.edit-mode .group:hover .edit-control-hover,
+        body.edit-mode .group\/info:hover .edit-control {
+            opacity: 1 !important;
         }
     </style>
 </head>
@@ -221,12 +220,12 @@
     <main id="main-content">
         <!-- HOMEセクション -->
         <section id="home" class="page-section min-h-screen flex items-center justify-center text-center hero-bg relative group">
-             <button class="edit-image-btn edit-control absolute top-24 right-5 bg-black/70 text-white px-4 py-2 rounded-lg opacity-50" data-target="hero-bg">背景を編集</button>
+             <button class="edit-image-btn edit-control absolute top-24 right-5 bg-black/70 text-white px-4 py-2 rounded-lg" data-target="hero-bg">背景を編集</button>
             <div class="bg-black/50 p-8 rounded-lg relative z-0 group">
                 <div id="typewriter-container" class="inline-block">
                      <h1 id="typewriter" class="text-2xl md:text-4xl font-orbitron">The code screams, the melody bleeds.</h1>
                 </div>
-                <button id="edit-catchphrase-btn" class="edit-control absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0" data-target="catchphrase">編集</button>
+                <button id="edit-catchphrase-btn" class="edit-control edit-control-hover absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0" data-target="catchphrase">編集</button>
             </div>
         </section>
 
@@ -244,7 +243,7 @@
                 <div class="text-center">
                      <h2 class="text-4xl font-orbitron mb-8 border-b-2 border-blue-500 inline-block pb-2">LATEST MOVIE</h2>
                      <div id="movie-list" class="flex flex-wrap gap-8 justify-center">
-                        <!-- Movie cards will be dynamically inserted here -->
+                         <!-- Movie cards will be dynamically inserted here -->
                     </div>
                     <div class="text-center mt-8">
                         <button id="add-movie-btn" class="edit-control bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
@@ -262,7 +261,7 @@
                 <!-- キービジュアルをタイトルの上に移動 -->
                 <div class="relative group mb-12 max-w-4xl mx-auto">
                     <img id="profile-key-visual" src="https://placehold.co/1200x675/000000/ffffff?text=LOUD+RABBIT+x+ROSES" alt="[キャラクターのキービジュアル]" class="w-full h-auto rounded-lg border-2 border-green-500/50">
-                    <button class="edit-image-btn edit-control absolute top-2 right-2 bg-black/70 text-white px-4 py-2 rounded-lg opacity-0" data-target="profile-key-visual">編集</button>
+                    <button class="edit-image-btn edit-control absolute top-2 right-2 bg-black/70 text-white px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100" data-target="profile-key-visual">編集</button>
                 </div>
 
                 <h2 class="text-5xl font-orbitron mb-12 text-center border-b-2 border-green-500 inline-block pb-2">PROFILE</h2>
@@ -290,37 +289,37 @@
                  <div class="max-w-5xl mx-auto mb-20">
                      <h3 class="text-3xl font-orbitron mb-6 text-blue-400">SHORT MOVIE</h3>
                      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
-                            <div class="text-center text-gray-500">
-                                <p class="text-xl font-orbitron">COMING SOON</p>
-                            </div>
-                        </div>
-                        <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
-                            <div class="text-center text-gray-500">
-                                <p class="text-xl font-orbitron">COMING SOON</p>
-                            </div>
-                        </div>
-                        <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
-                            <div class="text-center text-gray-500">
-                                <p class="text-xl font-orbitron">COMING SOON</p>
-                            </div>
-                        </div>
-                        <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
-                            <div class="text-center text-gray-500">
-                                <p class="text-xl font-orbitron">COMING SOON</p>
-                            </div>
-                        </div>
-                        <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
-                            <div class="text-center text-gray-500">
-                                <p class="text-xl font-orbitron">COMING SOON</p>
-                            </div>
-                        </div>
-                        <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
-                            <div class="text-center text-gray-500">
-                                <p class="text-xl font-orbitron">COMING SOON</p>
-                            </div>
-                        </div>
-                     </div>
+                         <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
+                             <div class="text-center text-gray-500">
+                                 <p class="text-xl font-orbitron">COMING SOON</p>
+                             </div>
+                         </div>
+                         <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
+                             <div class="text-center text-gray-500">
+                                 <p class="text-xl font-orbitron">COMING SOON</p>
+                             </div>
+                         </div>
+                         <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
+                             <div class="text-center text-gray-500">
+                                 <p class="text-xl font-orbitron">COMING SOON</p>
+                             </div>
+                         </div>
+                         <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
+                             <div class="text-center text-gray-500">
+                                 <p class="text-xl font-orbitron">COMING SOON</p>
+                             </div>
+                         </div>
+                         <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
+                             <div class="text-center text-gray-500">
+                                 <p class="text-xl font-orbitron">COMING SOON</p>
+                             </div>
+                         </div>
+                         <div class="aspect-w-16 aspect-h-9 bg-black border border-dashed border-gray-700 rounded-lg flex items-center justify-center">
+                             <div class="text-center text-gray-500">
+                                 <p class="text-xl font-orbitron">COMING SOON</p>
+                             </div>
+                         </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -581,10 +580,12 @@
     </footer>
 
     <script>
-       document.addEventListener('DOMContentLoaded', main);
+        document.addEventListener('DOMContentLoaded', main);
 
         function main() {
-            let isEditMode = false;
+            // --- STATE & CONFIG ---
+            // 編集モードでの確認のため、値を `true` に固定します。
+            let isEditMode = true;
             let db;
             
             let newsData = [], membersData = [], moviesData = [], socialLinksData = [];
@@ -669,8 +670,12 @@
                 initializeBaseUI();
                 await initializeDataAndRender();
                 initializeStaticEventListeners();
+                if (isEditMode) {
+                    document.body.classList.add('edit-mode');
+                    initializeEditableComponents();
+                }
             }
-
+            
             function enableEditMode() {
                 if (isEditMode) return;
                 isEditMode = true;
@@ -678,7 +683,7 @@
                 if(!document.getElementById('edit-mode-indicator')) {
                     const el = document.createElement('div');
                     el.id = 'edit-mode-indicator';
-                    el.textContent = '編集モード (Ctrl+Shift+E)';
+                    el.textContent = '編集モード';
                     el.style.cssText = 'position: fixed; bottom: 10px; left: 10px; background: #ff0000; color: white; padding: 5px 10px; border-radius: 5px; z-index: 10000; font-size: 14px;';
                     document.body.appendChild(el);
                 }
@@ -706,7 +711,7 @@
                 });
             }
             function initializeBaseUI() {
-                 window.addEventListener('load', () => setTimeout(() => elements.loader.classList.add('hidden'), 500));
+                window.addEventListener('load', () => setTimeout(() => elements.loader.classList.add('hidden'), 500));
                 elements.navLinks.forEach(link => link.addEventListener('click', e => { e.preventDefault(); navigateTo(link.dataset.section); }));
                 elements.mobileMenuButton.addEventListener('click', () => {
                     elements.mobileMenu.classList.toggle('hidden');
@@ -763,7 +768,7 @@
                     <div id="${item.id}" class="w-full sm:w-2/5 lg:w-[30%] bg-gray-900 border border-blue-500/50 rounded-lg overflow-hidden group relative">
                         <div class="aspect-w-16 aspect-h-9">${item.url ? `<iframe src="${item.url}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>` : `<div class="flex items-center justify-center text-gray-500">No Video</div>`}</div>
                         <div class="p-4"><h3 class="font-bold text-lg truncate">${item.title}</h3></div>
-                        <button class="edit-movie-btn edit-control absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0" data-id="${item.id}">編集</button>
+                        <button class="edit-movie-btn edit-control absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100" data-id="${item.id}">編集</button>
                     </div>`).join('');
                 if(isEditMode) attachMovieActionListeners();
             }
@@ -825,7 +830,7 @@
                 }
                 elements.membersGrid.innerHTML = membersData.map(member => `
                     <div data-member-id="${member.id}" class="bg-gray-900/50 border border-green-500/30 rounded-lg overflow-hidden flex flex-col cursor-grab">
-                        <div class="relative group"><img id="profile-${member.id}-visual" src="https://placehold.co/600x600/000000/ffffff?text=${member.name.toUpperCase()}" alt="${member.name}" class="w-full h-auto"><button class="edit-image-btn edit-control absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0" data-target="profile-${member.id}-visual">編集</button></div>
+                        <div class="relative group"><img id="profile-${member.id}-visual" src="https://placehold.co/600x600/000000/ffffff?text=${member.name.toUpperCase()}" alt="${member.name}" class="w-full h-auto"><button class="edit-image-btn edit-control absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100" data-target="profile-${member.id}-visual">編集</button></div>
                         <div class="p-6 flex-grow relative group/info">
                             <h4 class="text-2xl font-orbitron text-green-400 member-name text-center">${member.name}</h4>
                             <div class="mt-4 text-gray-300 space-y-2 text-sm text-center">
@@ -976,8 +981,8 @@
                     }
                     elements.memberModal.classList.add('hidden');
                 });
-            
-                if (elements.membersGrid) new Sortable(elements.membersGrid, { animation: 150, onEnd: () => { if(!isEditMode) return; const order = Array.from(elements.membersGrid.children).map(c => c.dataset.memberId); localStorage.setItem('membersOrder', JSON.stringify(order)); membersData.sort((a,b) => order.indexOf(a.id) - order.indexOf(b.id)); saveMembersData(); } });
+                
+                if (elements.membersGrid) new Sortable(elements.membersGrid, { animation: 150, disabled: !isEditMode, onEnd: () => { if(!isEditMode) return; const order = Array.from(elements.membersGrid.children).map(c => c.dataset.memberId); localStorage.setItem('membersOrder', JSON.stringify(order)); membersData.sort((a,b) => order.indexOf(a.id) - order.indexOf(b.id)); saveMembersData(); } });
                 
                 const cancelCatchphraseBtn = document.getElementById('cancel-catchphrase-edit-btn');
                 const saveCatchphraseBtn = document.getElementById('save-catchphrase-edit-btn');
@@ -1028,4 +1033,3 @@
     </script>
 </body>
 </html>
-
