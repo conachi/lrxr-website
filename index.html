@@ -68,7 +68,7 @@
 
         /* --- 背景 & オーバーレイ --- */
         .hero-bg {
-            background-image: url('lrxr_5nin_karu.jpg');
+            background-image: url('https://placehold.co/1920x1080/000000/ffffff?text=LOUD+RABBIT+x+ROSES');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -168,6 +168,19 @@
         .sortable-chosen {
             cursor: grabbing;
         }
+        
+        .edit-control {
+            display: none;
+        }
+        body.edit-mode .edit-control {
+            display: block;
+        }
+         body.edit-mode .group:hover .edit-control {
+            opacity: 1;
+        }
+         body.edit-mode .group\/info:hover .edit-control {
+            opacity: 1;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -208,12 +221,12 @@
     <main id="main-content">
         <!-- HOMEセクション -->
         <section id="home" class="page-section min-h-screen flex items-center justify-center text-center hero-bg relative group">
-             <button class="edit-image-btn edit-control absolute top-24 right-5 bg-black/70 text-white px-4 py-2 rounded-lg opacity-50 hover:opacity-100 transition-opacity z-10" data-target="hero-bg">背景を編集</button>
+             <button class="edit-image-btn edit-control absolute top-24 right-5 bg-black/70 text-white px-4 py-2 rounded-lg opacity-50" data-target="hero-bg">背景を編集</button>
             <div class="bg-black/50 p-8 rounded-lg relative z-0 group">
                 <div id="typewriter-container" class="inline-block">
                      <h1 id="typewriter" class="text-2xl md:text-4xl font-orbitron">The code screams, the melody bleeds.</h1>
                 </div>
-                <button id="edit-catchphrase-btn" class="edit-control absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-sm z-20">編集</button>
+                <button id="edit-catchphrase-btn" class="edit-control absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0" data-target="catchphrase">編集</button>
             </div>
         </section>
 
@@ -248,8 +261,8 @@
             <div class="container mx-auto p-4 md:p-8">
                 <!-- キービジュアルをタイトルの上に移動 -->
                 <div class="relative group mb-12 max-w-4xl mx-auto">
-                    <img id="profile-key-visual" src="lrxr_5nin_karu.jpg" alt="[キャラクターのキービジュアル]" class="w-full h-auto rounded-lg border-2 border-green-500/50">
-                    <button class="edit-image-btn edit-control absolute top-2 right-2 bg-black/70 text-white px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" data-target="profile-key-visual">編集</button>
+                    <img id="profile-key-visual" src="https://placehold.co/1200x675/000000/ffffff?text=LOUD+RABBIT+x+ROSES" alt="[キャラクターのキービジュアル]" class="w-full h-auto rounded-lg border-2 border-green-500/50">
+                    <button class="edit-image-btn edit-control absolute top-2 right-2 bg-black/70 text-white px-4 py-2 rounded-lg opacity-0" data-target="profile-key-visual">編集</button>
                 </div>
 
                 <h2 class="text-5xl font-orbitron mb-12 text-center border-b-2 border-green-500 inline-block pb-2">PROFILE</h2>
@@ -400,6 +413,7 @@
                 <div>
                     <label for="movie-url-input" class="block text-sm font-medium text-gray-400 mb-1">YouTube埋め込みURL</label>
                     <input type="text" id="movie-url-input" class="w-full bg-black border border-gray-700 p-2 rounded text-white" placeholder="https://www.youtube.com/embed/...">
+                    <p class="text-xs text-gray-500 mt-1">YouTubeの「共有」→「埋め込む」から取得したURLを貼り付けてください。</p>
                 </div>
                 <div>
                     <label for="movie-title-input" class="block text-sm font-medium text-gray-400 mb-1">動画タイトル</label>
@@ -567,354 +581,240 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const isEditMode = new URLSearchParams(window.location.search).get('mode') === 'edit';
-            
-            if (!isEditMode) {
-                document.querySelectorAll('.edit-control').forEach(el => el.remove());
-            }
+       document.addEventListener('DOMContentLoaded', main);
 
-            // --- IndexedDB for Image Storage ---
-            const dbName = 'LRxR_ImageDB';
-            const storeName = 'imageStore';
+        function main() {
+            let isEditMode = false;
             let db;
-
-            function initDB() {
-                return new Promise((resolve, reject) => {
-                    const request = indexedDB.open(dbName, 1);
-                    request.onupgradeneeded = event => {
-                        const dbInstance = event.target.result;
-                        if (!dbInstance.objectStoreNames.contains(storeName)) {
-                            dbInstance.createObjectStore(storeName);
-                        }
-                    };
-                    request.onsuccess = event => { db = event.target.result; resolve(db); };
-                    request.onerror = event => { console.error("IndexedDB error:", event.target.error); reject(event.target.error); };
-                });
-            }
-
-            function setImageInDB(key, blob) {
-                if (!db) return Promise.reject("DB not initialized");
-                return new Promise((resolve, reject) => {
-                    const transaction = db.transaction([storeName], 'readwrite');
-                    const store = transaction.objectStore(storeName);
-                    const request = store.put(blob, key);
-                    transaction.oncomplete = () => resolve();
-                    transaction.onerror = event => reject(event.target.error);
-                });
-            }
-
-            function getImageFromDB(key) {
-                if (!db) return Promise.reject("DB not initialized");
-                return new Promise((resolve, reject) => {
-                    const transaction = db.transaction([storeName], 'readonly');
-                    const store = transaction.objectStore(storeName);
-                    const request = store.get(key);
-                    request.onsuccess = event => resolve(event.target.result);
-                    request.onerror = event => reject(event.target.error);
-                });
-            }
-
-            await initDB();
-
-            // --- General Setup ---
-            const loader = document.getElementById('loader');
-            window.addEventListener('load', () => setTimeout(() => loader.classList.add('hidden'), 500));
-
-            const navLinks = document.querySelectorAll('.nav-link');
-            const pageSections = document.querySelectorAll('.page-section');
-            const mainContent = document.getElementById('main-content');
-            const homeContent = document.getElementById('home-content');
-            const mobileMenuButton = document.getElementById('mobile-menu-button');
-            const mobileMenu = document.getElementById('mobile-menu');
-
-            function navigateTo(sectionId) {
-                const isHome = sectionId === 'home';
-                pageSections.forEach(section => section.classList.toggle('hidden', section.id !== sectionId));
-                homeContent.style.display = isHome ? 'block' : 'none';
-                mainContent.style.paddingTop = isHome ? '0' : '5rem';
-                navLinks.forEach(link => link.classList.toggle('active', link.dataset.section === sectionId));
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                mobileMenu.classList.add('hidden');
-                document.body.style.overflow = '';
-            }
-
-            navLinks.forEach(link => link.addEventListener('click', e => { e.preventDefault(); navigateTo(link.dataset.section); }));
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-                document.body.style.overflow = mobileMenu.classList.contains('hidden') ? '' : 'hidden';
-            });
-
-            // --- Confirm Modal ---
-            const confirmModal = document.getElementById('confirm-modal');
-            const confirmModalText = document.getElementById('confirm-modal-text');
-            const confirmOkBtn = document.getElementById('confirm-ok-btn');
-            const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
-
-            function showConfirm(message) {
-                return new Promise(resolve => {
-                    confirmModalText.textContent = message;
-                    confirmModal.classList.remove('hidden');
-                    confirmOkBtn.onclick = () => { confirmModal.classList.add('hidden'); resolve(true); };
-                    confirmCancelBtn.onclick = () => { confirmModal.classList.add('hidden'); resolve(false); };
-                });
-            }
-
-            // --- Image Editing ---
-            const imageModal = document.getElementById('image-edit-modal');
-            const cancelImageBtn = document.getElementById('cancel-edit-btn');
-            const saveImageBtn = document.getElementById('save-edit-btn');
-            const fileInput = document.getElementById('image-file-input');
-            let currentImageTargetId = null;
-
-            async function loadImages() {
-                const imageTargets = ['hero-bg', 'profile-key-visual', ...membersData.map(m => `profile-${m.id}-visual`)];
-                for (const targetId of imageTargets) {
-                    try {
-                        const imageBlob = await getImageFromDB(`${targetId}-image`);
-                        if (imageBlob) {
-                            const url = URL.createObjectURL(imageBlob);
-                            const element = document.getElementById(targetId) || document.querySelector(`.${targetId}`);
-                            if(element) {
-                                if (targetId === 'hero-bg') element.style.backgroundImage = `url('${url}')`;
-                                else element.src = url;
-                            }
-                        }
-                    } catch (error) { console.error(`Failed to load image ${targetId} from DB`, error); }
-                }
-            }
-
-            function attachImageEditListeners() {
-                document.querySelectorAll('.edit-image-btn').forEach(btn => btn.addEventListener('click', (e) => {
-                    currentImageTargetId = e.currentTarget.dataset.target;
-                    fileInput.value = '';
-                    imageModal.classList.remove('hidden');
-                }));
-            }
             
-            if (isEditMode) {
-                cancelImageBtn.addEventListener('click', () => { imageModal.classList.add('hidden'); currentImageTargetId = null; });
-                saveImageBtn.addEventListener('click', async () => {
-                    const file = fileInput.files[0];
-                    if (file && currentImageTargetId) {
-                        try {
-                            const targetIdForSave = currentImageTargetId;
-                            await setImageInDB(`${targetIdForSave}-image`, file);
-                            const newUrl = URL.createObjectURL(file);
-                            const targetElement = document.getElementById(targetIdForSave) || document.querySelector('.' + targetIdForSave);
-                            if (targetIdForSave === 'hero-bg') targetElement.style.backgroundImage = `url('${newUrl}')`;
-                            else targetElement.src = newUrl;
-                        } catch (error) {
-                            console.error("Failed to save image to DB", error);
-                            alert("画像の保存に失敗しました。容量が大きすぎる可能性があります。");
-                        }
-                    }
-                    imageModal.classList.add('hidden');
-                    currentImageTargetId = null;
-                    fileInput.value = '';
-                });
-            }
+            let newsData = [], membersData = [], moviesData = [], socialLinksData = [];
+            let currentNewsId, currentMemberId, currentMovieId, currentSocialLinkId, currentImageTargetId;
 
-            // --- Movie Editing ---
-            let moviesData = [];
-            const defaultMoviesData = [ { id: 'movie-' + Date.now(), url: '', title: 'COMING SOON...' } ];
-            const movieModal = document.getElementById('movie-edit-modal');
-            const movieModalTitle = document.getElementById('movie-modal-title');
-            const cancelMovieBtn = document.getElementById('cancel-movie-edit-btn');
-            const saveMovieBtn = document.getElementById('save-movie-edit-btn');
-            const deleteMovieBtn = document.getElementById('delete-movie-btn');
-            const addMovieBtn = document.getElementById('add-movie-btn');
-            const movieUrlInput = document.getElementById('movie-url-input');
-            const movieTitleInput = document.getElementById('movie-title-input');
-            let currentMovieId = null;
-
-            function saveMovies() { localStorage.setItem('moviesData', JSON.stringify(moviesData)); }
-
-            function renderMovies() {
-                const savedMovies = localStorage.getItem('moviesData');
-                moviesData = savedMovies && JSON.parse(savedMovies).length > 0 ? JSON.parse(savedMovies) : defaultMoviesData;
-                const movieListContainer = document.getElementById('movie-list');
-                movieListContainer.innerHTML = '';
-                moviesData.forEach(item => {
-                    movieListContainer.innerHTML += `
-                        <div id="${item.id}" class="w-full sm:w-2/5 lg:w-[30%] bg-gray-900 border border-blue-500/50 rounded-lg overflow-hidden group relative">
-                            <div class="aspect-w-16 aspect-h-9">
-                                ${item.url ? `<iframe src="${item.url}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>` : `<div class="flex items-center justify-center text-gray-500">No Video</div>`}
-                            </div>
-                            <div class="p-4">
-                                <h3 class="font-bold text-lg truncate">${item.title}</h3>
-                            </div>
-                            <button class="edit-movie-btn edit-control absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-sm" data-id="${item.id}">編集</button>
-                        </div>`;
-                });
-                if(isEditMode) attachMovieActionListeners();
-            }
-
-            function openMovieModal(movieId = null) {
-                currentMovieId = movieId;
-                if(movieId) {
-                    movieModalTitle.textContent = "動画の更新";
-                    const movie = moviesData.find(m => m.id === movieId);
-                    movieUrlInput.value = movie.url;
-                    movieTitleInput.value = movie.title;
-                    deleteMovieBtn.classList.remove('hidden');
-                }
-                movieModal.classList.remove('hidden');
-            }
-
-            function attachMovieActionListeners() {
-                document.querySelectorAll('.edit-movie-btn').forEach(btn => btn.onclick = (e) => openMovieModal(e.currentTarget.dataset.id));
-            }
+            const dbName = 'LRxR_ImageDB', storeName = 'imageStore';
             
-            if (isEditMode) {
-                addMovieBtn.addEventListener('click', () => {
-                    moviesData.push({ id: 'movie-' + Date.now(), url: '', title: 'COMING SOON...' });
-                    saveMovies();
-                    renderMovies();
-                });
-                cancelMovieBtn.addEventListener('click', () => { movieModal.classList.add('hidden'); currentMovieId = null; });
-                saveMovieBtn.addEventListener('click', () => {
-                    if (currentMovieId) {
-                        const index = moviesData.findIndex(m => m.id === currentMovieId);
-                        if(index > -1) {
-                            moviesData[index].url = movieUrlInput.value;
-                            moviesData[index].title = movieTitleInput.value;
-                        }
-                        saveMovies();
-                        renderMovies();
-                    }
-                    movieModal.classList.add('hidden');
-                    currentMovieId = null;
-                });
-                deleteMovieBtn.addEventListener('click', async () => {
-                    if(currentMovieId && await showConfirm('この動画を削除してもよろしいですか？')) {
-                        moviesData = moviesData.filter(m => m.id !== currentMovieId);
-                        saveMovies();
-                        renderMovies();
-                        movieModal.classList.add('hidden');
-                    }
-                });
-            }
-            
-            // --- News Editing ---
-            let newsData = [];
+            const elements = {
+                loader: document.getElementById('loader'),
+                navLinks: document.querySelectorAll('.nav-link'),
+                pageSections: document.querySelectorAll('.page-section'),
+                mainContent: document.getElementById('main-content'),
+                homeContent: document.getElementById('home-content'),
+                mobileMenuButton: document.getElementById('mobile-menu-button'),
+                mobileMenu: document.getElementById('mobile-menu'),
+                confirmModal: document.getElementById('confirm-modal'),
+                confirmModalText: document.getElementById('confirm-modal-text'),
+                confirmOkBtn: document.getElementById('confirm-ok-btn'),
+                confirmCancelBtn: document.getElementById('confirm-cancel-btn'),
+                imageModal: document.getElementById('image-edit-modal'),
+                cancelImageBtn: document.getElementById('cancel-edit-btn'),
+                saveImageBtn: document.getElementById('save-edit-btn'),
+                fileInput: document.getElementById('image-file-input'),
+                movieModal: document.getElementById('movie-edit-modal'),
+                movieModalTitle: document.getElementById('movie-modal-title'),
+                cancelMovieBtn: document.getElementById('cancel-movie-edit-btn'),
+                saveMovieBtn: document.getElementById('save-movie-edit-btn'),
+                deleteMovieBtn: document.getElementById('delete-movie-btn'),
+                addMovieBtn: document.getElementById('add-movie-btn'),
+                movieUrlInput: document.getElementById('movie-url-input'),
+                movieTitleInput: document.getElementById('movie-title-input'),
+                newsModal: document.getElementById('news-edit-modal'),
+                newsModalTitle: document.getElementById('news-modal-title'),
+                cancelNewsBtn: document.getElementById('cancel-news-edit-btn'),
+                saveNewsBtn: document.getElementById('save-news-edit-btn'),
+                deleteNewsBtn: document.getElementById('delete-news-btn'),
+                addNewsBtn: document.getElementById('add-news-btn'),
+                newsDateInput: document.getElementById('news-date-input'),
+                newsTitleInput: document.getElementById('news-title-input'),
+                newsDescInput: document.getElementById('news-desc-input'),
+                newsCategoryInput: document.getElementById('news-category-input'),
+                memberModal: document.getElementById('member-edit-modal'),
+                cancelMemberBtn: document.getElementById('cancel-member-edit-btn'),
+                saveMemberBtn: document.getElementById('save-member-edit-btn'),
+                memberNameInput: document.getElementById('member-name-input'),
+                memberInfo1Input: document.getElementById('member-info1-input'),
+                memberInfo2Input: document.getElementById('member-info2-input'),
+                memberInfo3Input: document.getElementById('member-info3-input'),
+                membersGrid: document.getElementById('members-grid'),
+                catchphraseModal: document.getElementById('catchphrase-edit-modal'),
+                typewriterEl: document.getElementById('typewriter'),
+                socialLinksManageModal: document.getElementById('social-links-manage-modal'),
+                socialLinkFormModal: document.getElementById('social-link-form-modal'),
+                socialLinkModalTitle: document.getElementById('social-link-modal-title'),
+                socialLinkTypeInput: document.getElementById('social-link-type-input'),
+                socialLinkUrlInput: document.getElementById('social-link-url-input')
+            };
+
             const defaultNewsData = [
                 { id: 'news-1', date: '2025.10.01', title: '1st Single "Rebellion Code" 配信開始', desc: 'デビュー曲となる「Rebellion Code」が各種音楽配信サービスにてリリース。', category: 'RELEASE' },
                 { id: 'news-2', date: '2025.09.28', title: '公式サイトオープン', desc: 'LOUD RABBIT x ROSESの公式ウェブサイトが本日より公開されました。', category: 'OTHER' },
                 { id: 'news-3', date: '2025.09.25', title: '公式YouTubeチャンネル開設', desc: '初のMVを公開予定。チャンネル登録をしてお待ちください。', category: 'MEDIA' },
                 { id: 'news-4', date: '2025.09.20', title: 'ファーストグッズ "GENESIS" Collection 発売決定', desc: '公式サイト開設を記念し、初のオフィシャルグッズの発売が決定。詳細はGOODSページにて近日公開。', category: 'GOODS' }
             ];
-            const newsModal = document.getElementById('news-edit-modal');
-            const newsModalTitle = document.getElementById('news-modal-title');
-            const cancelNewsBtn = document.getElementById('cancel-news-edit-btn');
-            const saveNewsBtn = document.getElementById('save-news-edit-btn');
-            const deleteNewsBtn = document.getElementById('delete-news-btn');
-            const addNewsBtn = document.getElementById('add-news-btn');
-            const newsDateInput = document.getElementById('news-date-input');
-            const newsTitleInput = document.getElementById('news-title-input');
-            const newsDescInput = document.getElementById('news-desc-input');
-            const newsCategoryInput = document.getElementById('news-category-input');
-            let currentNewsId = null;
-            
-            function saveNews() { localStorage.setItem('newsData', JSON.stringify(newsData)); }
+            const defaultMembersData = [
+                 { id: 'yuki', name: 'YUKI', info1: '', info2: '', info3: '' }, { id: 'akari', name: 'AKARI', info1: '', info2: '', info3: '' },
+                 { id: 'mei', name: 'MEI', info1: '', info2: '', info3: '' }, { id: 'riko', name: 'RIKO', info1: '', info2: '', info3: '' },
+                 { id: 'sora', name: 'SORA', info1: '', info2: '', info3: '' }
+            ];
+            const defaultMoviesData = [ { id: 'movie-' + Date.now(), url: '', title: 'COMING SOON...' } ];
+            const defaultSocialLinks = [{ id: 'social-' + Date.now(), type: 'youtube', url: '#' }];
+            const svgIcons = {
+                youtube: `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.78 22 12 22 12s0 3.22-.42 4.814a2.506 2.506 0 0 1-1.768 1.768c-1.594.42-7.812.42-7.812.42s-6.218 0-7.812-.42a2.506 2.506 0 0 1-1.768-1.768C2 15.22 2 12 2 12s0-3.22.42-4.814a2.506 2.506 0 0 1 1.768-1.768C5.782 5 12 5 12 5s6.218 0 7.812.418ZM15.194 12 10 15.194v-6.388L15.194 12Z" clip-rule="evenodd" /></svg>`,
+                tiktok: `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-2.43.03-4.83-.95-6.43-2.98-1.55-1.99-2.3-4.47-2.1-6.93.2-2.51 1.25-4.88 2.9-6.66 1.81-1.95 4.3-3.13 6.9-3.24.01 2.11-.01 4.22.02 6.33-.02 1.14-.32 2.25-.87 3.23-.73 1.34-1.95 2.36-3.41 2.65-1.4.28-2.89-.04-4.11-.83-.62-.4-1.15-.9-1.59-1.48-.19-.24-.4-.51-.58-.78-.01-.02.02-.03.03-.03.22-.18.44-.35.67-.5.2-.13.41-.25.6-.38.2-.13.39-.27.59-.4.23-.15.47-.29.7-.43.53-.33 1.1-.57 1.68-.74.7-.2 1.42-.28 2.14-.27.02-2.13.01-4.26.01-6.39.01-1.37.01-2.73 0-4.1z"></path></svg>`,
+                x: `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.71v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"/></svg>`
+            };
 
-            function renderNews() {
-                const savedNews = localStorage.getItem('newsData');
-                newsData = savedNews ? JSON.parse(savedNews) : defaultNewsData;
-                const homeNewsContainer = document.getElementById('home-news-grid');
-                const newsPageContainer = document.getElementById('news-list-container');
-                homeNewsContainer.innerHTML = '';
-                newsPageContainer.innerHTML = '';
+            initializeAll();
 
-                newsData.slice(0, 3).forEach(item => {
-                    homeNewsContainer.innerHTML += `<div id="home-${item.id}" class="w-full sm:w-2/5 lg:w-[30%] bg-gray-900 border border-red-500/50 p-4 relative overflow-hidden card-overlay cursor-pointer group"><div class="relative z-10"><p class="news-date text-red-400 text-sm">${item.date}</p><h3 class="news-title text-xl font-bold mt-2">${item.title}</h3><p class="news-desc text-gray-400 mt-2 text-sm">${item.desc}</p></div></div>`;
-                });
-
-                newsData.forEach(item => {
-                    const categoryColors = { RELEASE: 'red', OTHER: 'blue', MEDIA: 'green', GOODS: 'yellow' };
-                    const color = categoryColors[item.category] || 'gray';
-                    newsPageContainer.innerHTML += `<div class="group md:flex items-start space-x-0 md:space-x-8 relative p-4 -m-4 rounded-lg hover:bg-white/5"><div class="md:w-1/4 mb-2 md:mb-0"><p class="text-gray-400">${item.date}</p><p class="font-bold text-${color}-400">[${item.category}]</p></div><div class="md:w-3/4"><h3 class="text-2xl font-bold">${item.title}</h3><p class="mt-2 text-gray-300">${item.desc}</p></div><div class="edit-control absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity"><button class="edit-news-btn p-2 bg-gray-700 rounded-full hover:bg-blue-500" data-id="${item.id}"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 5.232z"></path></svg></button><button class="delete-news-btn p-2 bg-gray-700 rounded-full hover:bg-red-500" data-id="${item.id}"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></div></div>`;
-                });
-                if(isEditMode) attachNewsActionListeners();
+            async function initializeAll() {
+                await initDB();
+                initializeBaseUI();
+                await initializeDataAndRender();
+                initializeStaticEventListeners();
             }
 
+            function enableEditMode() {
+                if (isEditMode) return;
+                isEditMode = true;
+                document.body.classList.add('edit-mode');
+                if(!document.getElementById('edit-mode-indicator')) {
+                    const el = document.createElement('div');
+                    el.id = 'edit-mode-indicator';
+                    el.textContent = '編集モード (Ctrl+Shift+E)';
+                    el.style.cssText = 'position: fixed; bottom: 10px; left: 10px; background: #ff0000; color: white; padding: 5px 10px; border-radius: 5px; z-index: 10000; font-size: 14px;';
+                    document.body.appendChild(el);
+                }
+                initializeEditableComponents();
+            }
+            function initDB() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(dbName, 1);
+                    request.onupgradeneeded = e => e.target.result.createObjectStore(storeName);
+                    request.onsuccess = e => { db = e.target.result; resolve(db); };
+                    request.onerror = e => { console.error("DB error:", e.target.error); reject(e.target.error); };
+                });
+            }
+            function setImageInDB(key, blob) {
+                return new Promise((resolve, reject) => {
+                    const t = db.transaction([storeName], 'readwrite');
+                    t.objectStore(storeName).put(blob, key);
+                    t.oncomplete = () => resolve();
+                    t.onerror = e => reject(e.target.error);
+                });
+            }
+            function getImageFromDB(key) {
+                return new Promise((resolve, reject) => {
+                    db.transaction([storeName]).objectStore(storeName).get(key).onsuccess = e => resolve(e.target.result);
+                });
+            }
+            function initializeBaseUI() {
+                 window.addEventListener('load', () => setTimeout(() => elements.loader.classList.add('hidden'), 500));
+                elements.navLinks.forEach(link => link.addEventListener('click', e => { e.preventDefault(); navigateTo(link.dataset.section); }));
+                elements.mobileMenuButton.addEventListener('click', () => {
+                    elements.mobileMenu.classList.toggle('hidden');
+                    document.body.style.overflow = elements.mobileMenu.classList.contains('hidden') ? '' : 'hidden';
+                });
+                navigateTo('home');
+            }
+            function navigateTo(sectionId) {
+                const isHome = sectionId === 'home';
+                elements.pageSections.forEach(s => s.classList.toggle('hidden', s.id !== sectionId));
+                elements.homeContent.style.display = isHome ? 'block' : 'none';
+                elements.mainContent.style.paddingTop = isHome ? '0' : '5rem';
+                elements.navLinks.forEach(l => l.classList.toggle('active', l.dataset.section === sectionId));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                elements.mobileMenu.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+            function showConfirm(message) {
+                return new Promise(resolve => {
+                    elements.confirmModalText.textContent = message;
+                    elements.confirmModal.classList.remove('hidden');
+                    elements.confirmOkBtn.onclick = () => { elements.confirmModal.classList.add('hidden'); resolve(true); };
+                    elements.confirmCancelBtn.onclick = () => { elements.confirmModal.classList.add('hidden'); resolve(false); };
+                });
+            }
+            async function loadImages() {
+                const targets = ['hero-bg', 'profile-key-visual', ...membersData.map(m => `profile-${m.id}-visual`)];
+                for (const id of targets) {
+                    try {
+                        const blob = await getImageFromDB(`${id}-image`);
+                        if (blob) {
+                            const url = URL.createObjectURL(blob);
+                            const el = document.getElementById(id) || document.querySelector(`.${id}`);
+                            if (el) {
+                                if (id === 'hero-bg') el.style.backgroundImage = `url('${url}')`; else el.src = url;
+                            }
+                        }
+                    } catch (e) { console.error(`Failed to load image ${id}`, e); }
+                }
+            }
+            function attachImageEditListeners() {
+                document.querySelectorAll('.edit-image-btn').forEach(btn => btn.onclick = e => {
+                    currentImageTargetId = e.currentTarget.dataset.target;
+                    elements.fileInput.value = '';
+                    elements.imageModal.classList.remove('hidden');
+                });
+            }
+            function saveMovies() { localStorage.setItem('moviesData', JSON.stringify(moviesData)); }
+            function renderMovies() {
+                const saved = localStorage.getItem('moviesData');
+                moviesData = saved && JSON.parse(saved).length ? JSON.parse(saved) : defaultMoviesData;
+                const container = document.getElementById('movie-list');
+                container.innerHTML = moviesData.map(item => `
+                    <div id="${item.id}" class="w-full sm:w-2/5 lg:w-[30%] bg-gray-900 border border-blue-500/50 rounded-lg overflow-hidden group relative">
+                        <div class="aspect-w-16 aspect-h-9">${item.url ? `<iframe src="${item.url}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>` : `<div class="flex items-center justify-center text-gray-500">No Video</div>`}</div>
+                        <div class="p-4"><h3 class="font-bold text-lg truncate">${item.title}</h3></div>
+                        <button class="edit-movie-btn edit-control absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0" data-id="${item.id}">編集</button>
+                    </div>`).join('');
+                if(isEditMode) attachMovieActionListeners();
+            }
+            function openMovieModal(movieId) {
+                currentMovieId = movieId;
+                const movie = moviesData.find(m => m.id === movieId);
+                if(movie) {
+                    elements.movieModalTitle.textContent = "動画の更新";
+                    elements.movieUrlInput.value = movie.url;
+                    elements.movieTitleInput.value = movie.title;
+                    elements.deleteMovieBtn.classList.remove('hidden');
+                    elements.movieModal.classList.remove('hidden');
+                }
+            }
+            function attachMovieActionListeners() { document.querySelectorAll('.edit-movie-btn').forEach(btn => btn.onclick = e => openMovieModal(e.currentTarget.dataset.id)); }
+            function saveNews() { localStorage.setItem('newsData', JSON.stringify(newsData)); }
+            function renderNews() {
+                const saved = localStorage.getItem('newsData');
+                newsData = saved ? JSON.parse(saved) : defaultNewsData;
+                document.getElementById('home-news-grid').innerHTML = newsData.slice(0, 3).map(item => `<div id="home-${item.id}" class="w-full sm:w-2/5 lg:w-[30%] bg-gray-900 border border-red-500/50 p-4 relative overflow-hidden card-overlay cursor-pointer group"><div class="relative z-10"><p class="news-date text-red-400 text-sm">${item.date}</p><h3 class="news-title text-xl font-bold mt-2">${item.title}</h3><p class="news-desc text-gray-400 mt-2 text-sm">${item.desc}</p></div></div>`).join('');
+                document.getElementById('news-list-container').innerHTML = newsData.map(item => {
+                    const colors = { RELEASE: 'red', OTHER: 'blue', MEDIA: 'green', GOODS: 'yellow' };
+                    return `<div class="group md:flex items-start space-x-0 md:space-x-8 relative p-4 -m-4 rounded-lg hover:bg-white/5"><div class="md:w-1/4 mb-2 md:mb-0"><p class="text-gray-400">${item.date}</p><p class="font-bold text-${colors[item.category] || 'gray'}-400">[${item.category}]</p></div><div class="md:w-3/4"><h3 class="text-2xl font-bold">${item.title}</h3><p class="mt-2 text-gray-300">${item.desc}</p></div><div class="edit-control absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity"><button class="edit-news-btn p-2 bg-gray-700 rounded-full hover:bg-blue-500" data-id="${item.id}"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 5.232z"></path></svg></button><button class="delete-news-btn p-2 bg-gray-700 rounded-full hover:bg-red-500" data-id="${item.id}"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></div></div>`;
+                }).join('');
+                if(isEditMode) attachNewsActionListeners();
+            }
             function openNewsModal(newsId = null) {
                 currentNewsId = newsId;
                 if (newsId) {
-                    newsModalTitle.textContent = 'ニュースの更新';
+                    elements.newsModalTitle.textContent = 'ニュースの更新';
                     const item = newsData.find(i => i.id === newsId);
-                    newsDateInput.value = item.date;
-                    newsTitleInput.value = item.title;
-                    newsDescInput.value = item.desc;
-                    newsCategoryInput.value = item.category;
-                    deleteNewsBtn.classList.remove('hidden');
+                    elements.newsDateInput.value = item.date; elements.newsTitleInput.value = item.title; elements.newsDescInput.value = item.desc; elements.newsCategoryInput.value = item.category;
+                    elements.deleteNewsBtn.classList.remove('hidden');
                 } else {
-                    newsModalTitle.textContent = 'ニュースの新規追加';
-                    [newsDateInput, newsTitleInput, newsDescInput].forEach(i => i.value = '');
-                    newsCategoryInput.value = 'RELEASE';
-                    deleteNewsBtn.classList.add('hidden');
+                    elements.newsModalTitle.textContent = 'ニュースの新規追加';
+                    [elements.newsDateInput, elements.newsTitleInput, elements.newsDescInput].forEach(i => i.value = '');
+                    elements.newsCategoryInput.value = 'RELEASE';
+                    elements.deleteNewsBtn.classList.add('hidden');
                 }
-                newsModal.classList.remove('hidden');
+                elements.newsModal.classList.remove('hidden');
             }
-
             function attachNewsActionListeners() {
-                document.querySelectorAll('.edit-news-btn').forEach(btn => btn.onclick = (e) => openNewsModal(e.currentTarget.dataset.id));
-                document.querySelectorAll('.delete-news-btn').forEach(btn => btn.onclick = async (e) => {
-                    const idToDelete = e.currentTarget.dataset.id;
+                document.querySelectorAll('.edit-news-btn').forEach(btn => btn.onclick = e => openNewsModal(e.currentTarget.dataset.id));
+                document.querySelectorAll('.delete-news-btn').forEach(btn => btn.onclick = async e => {
                     if (await showConfirm('このニュースを削除してもよろしいですか？')) {
-                        newsData = newsData.filter(item => item.id !== idToDelete);
-                        saveNews();
-                        renderNews();
+                        newsData = newsData.filter(item => item.id !== e.currentTarget.dataset.id);
+                        saveNews(); renderNews();
                     }
                 });
             }
-            
-            if(isEditMode) {
-                cancelNewsBtn.addEventListener('click', () => newsModal.classList.add('hidden'));
-                addNewsBtn.addEventListener('click', () => openNewsModal());
-                saveNewsBtn.addEventListener('click', () => {
-                    const newDataItem = { date: newsDateInput.value, title: newsTitleInput.value, desc: newsDescInput.value, category: newsCategoryInput.value };
-                    if (currentNewsId) {
-                        const index = newsData.findIndex(i => i.id === currentNewsId);
-                        if (index > -1) newsData[index] = { ...newsData[index], ...newDataItem };
-                    } else {
-                        newsData.unshift({ id: 'news-' + Date.now(), ...newDataItem });
-                    }
-                    saveNews();
-                    renderNews();
-                    newsModal.classList.add('hidden');
-                });
-                deleteNewsBtn.addEventListener('click', async () => {
-                    if (currentNewsId && await showConfirm('このニュースを削除してもよろしいですか？')) {
-                        newsData = newsData.filter(i => i.id !== currentNewsId);
-                        saveNews();
-                        renderNews();
-                        newsModal.classList.add('hidden');
-                    }
-                });
-            }
-
-            // --- Member Editing ---
-            let membersData = [];
-            const defaultMembersData = [
-                 { id: 'yuki', name: 'YUKI', info1: '', info2: '', info3: '' },
-                 { id: 'akari', name: 'AKARI', info1: '', info2: '', info3: '' },
-                 { id: 'mei', name: 'MEI', info1: '', info2: '', info3: '' },
-                 { id: 'riko', name: 'RIKO', info1: '', info2: '', info3: '' },
-                 { id: 'sora', name: 'SORA', info1: '', info2: '', info3: '' }
-            ];
-            const memberModal = document.getElementById('member-edit-modal');
-            const cancelMemberBtn = document.getElementById('cancel-member-edit-btn');
-            const saveMemberBtn = document.getElementById('save-member-edit-btn');
-            const memberNameInput = document.getElementById('member-name-input');
-            const memberInfo1Input = document.getElementById('member-info1-input');
-            const memberInfo2Input = document.getElementById('member-info2-input');
-            const memberInfo3Input = document.getElementById('member-info3-input');
-            const membersGrid = document.getElementById('members-grid');
-            let currentMemberId = null;
-
             function saveMembersData() { localStorage.setItem('membersData', JSON.stringify(membersData)); }
-
             function renderMembers() {
                 const savedData = localStorage.getItem('membersData');
                 membersData = savedData ? JSON.parse(savedData) : defaultMembersData;
@@ -923,217 +823,208 @@
                     const order = JSON.parse(savedOrder);
                     membersData.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
                 }
-                membersGrid.innerHTML = '';
-                membersData.forEach(member => {
-                    membersGrid.innerHTML += `
-                        <div data-member-id="${member.id}" class="bg-gray-900/50 border border-green-500/30 rounded-lg overflow-hidden flex flex-col cursor-grab">
-                            <div class="relative group">
-                                <img id="profile-${member.id}-visual" src="https://placehold.co/600x600/000000/ffffff?text=${member.name.toUpperCase()}" alt="${member.name}" class="w-full h-auto">
-                                <button class="edit-image-btn edit-control absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity text-sm" data-target="profile-${member.id}-visual">編集</button>
+                elements.membersGrid.innerHTML = membersData.map(member => `
+                    <div data-member-id="${member.id}" class="bg-gray-900/50 border border-green-500/30 rounded-lg overflow-hidden flex flex-col cursor-grab">
+                        <div class="relative group"><img id="profile-${member.id}-visual" src="https://placehold.co/600x600/000000/ffffff?text=${member.name.toUpperCase()}" alt="${member.name}" class="w-full h-auto"><button class="edit-image-btn edit-control absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0" data-target="profile-${member.id}-visual">編集</button></div>
+                        <div class="p-6 flex-grow relative group/info">
+                            <h4 class="text-2xl font-orbitron text-green-400 member-name text-center">${member.name}</h4>
+                            <div class="mt-4 text-gray-300 space-y-2 text-sm text-center">
+                                <p class="member-info1">${member.info1}</p><p class="member-info2">${member.info2}</p><p class="member-info3">${member.info3}</p>
                             </div>
-                            <div class="p-6 flex-grow relative group/info">
-                                <h4 class="text-2xl font-orbitron text-green-400 member-name text-center">${member.name}</h4>
-                                <div class="mt-4 text-gray-300 space-y-2 text-sm text-center">
-                                    <p class="member-info1">${member.info1}</p>
-                                    <p class="member-info2">${member.info2}</p>
-                                    <p class="member-info3">${member.info3}</p>
-                                </div>
-                                <button class="edit-member-btn edit-control absolute top-2 right-2 p-2 bg-gray-700 rounded-full opacity-0 group-hover/info:opacity-100 transition-opacity" data-id="${member.id}">
-                                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 5.232z"></path></svg>
-                                </button>
-                            </div>
-                        </div>`;
-                });
+                            <button class="edit-member-btn edit-control absolute top-2 right-2 p-2 bg-gray-700 rounded-full opacity-0" data-id="${member.id}"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 5.232z"></path></svg></button>
+                        </div>
+                    </div>`).join('');
                 if (isEditMode) attachMemberActionListeners();
                 loadImages();
             }
-            
             function openMemberModal(memberId) {
                 currentMemberId = memberId;
                 const member = membersData.find(m => m.id === memberId);
-                memberNameInput.value = member.name;
-                memberInfo1Input.value = member.info1;
-                memberInfo2Input.value = member.info2;
-                memberInfo3Input.value = member.info3;
-                memberModal.classList.remove('hidden');
+                elements.memberNameInput.value = member.name;
+                elements.memberInfo1Input.value = member.info1;
+                elements.memberInfo2Input.value = member.info2;
+                elements.memberInfo3Input.value = member.info3;
+                elements.memberModal.classList.remove('hidden');
             }
-
             function attachMemberActionListeners() {
-                 document.querySelectorAll('.edit-member-btn').forEach(btn => btn.onclick = (e) => openMemberModal(e.currentTarget.dataset.id));
+                 document.querySelectorAll('.edit-member-btn').forEach(btn => btn.onclick = e => openMemberModal(e.currentTarget.dataset.id));
                  attachImageEditListeners();
             }
-            
-            if(isEditMode) {
-                cancelMemberBtn.addEventListener('click', () => memberModal.classList.add('hidden'));
-                saveMemberBtn.addEventListener('click', () => {
-                    if(currentMemberId) {
-                        const index = membersData.findIndex(m => m.id === currentMemberId);
-                        if (index > -1) {
-                            membersData[index].name = memberNameInput.value;
-                            membersData[index].info1 = memberInfo1Input.value;
-                            membersData[index].info2 = memberInfo2Input.value;
-                            membersData[index].info3 = memberInfo3Input.value;
-                        }
-                        saveMembersData();
-                        renderMembers();
-                    }
-                    memberModal.classList.add('hidden');
-                });
-            
-                if (membersGrid) {
-                    new Sortable(membersGrid, {
-                        animation: 150,
-                        onEnd: function () {
-                            const newOrder = Array.from(membersGrid.children).map(card => card.dataset.memberId);
-                            localStorage.setItem('membersOrder', JSON.stringify(newOrder));
-                            membersData.sort((a, b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
-                            saveMembersData();
-                        }
-                    });
-                }
-            }
-
-
-            // --- Catchphrase Editing ---
-            const catchphraseModal = document.getElementById('catchphrase-edit-modal');
-            const editCatchphraseBtn = document.getElementById('edit-catchphrase-btn');
-            const cancelCatchphraseBtn = document.getElementById('cancel-catchphrase-edit-btn');
-            const saveCatchphraseBtn = document.getElementById('save-catchphrase-edit-btn');
-            const catchphraseInput = document.getElementById('catchphrase-input');
-            const typewriterEl = document.getElementById('typewriter');
-
             function loadCatchphrase() {
                 const saved = localStorage.getItem('catchphrase');
-                if (saved) typewriterEl.textContent = saved;
+                if (saved) elements.typewriterEl.textContent = saved;
             }
-            
-            if (isEditMode) {
-                editCatchphraseBtn.addEventListener('click', () => {
-                    catchphraseInput.value = typewriterEl.textContent;
-                    catchphraseModal.classList.remove('hidden');
-                });
-                cancelCatchphraseBtn.addEventListener('click', () => catchphraseModal.classList.add('hidden'));
-                saveCatchphraseBtn.addEventListener('click', () => {
-                    const newText = catchphraseInput.value;
-                    typewriterEl.textContent = newText;
-                    localStorage.setItem('catchphrase', newText);
-                    catchphraseModal.classList.add('hidden');
-                    typewriterEl.style.animation = 'none';
-                    typewriterEl.offsetHeight;
-                    typewriterEl.style.animation = null;
-                });
-            }
-            
-            // --- Social Links Editing ---
-            const socialLinksManageModal = document.getElementById('social-links-manage-modal');
-            const socialLinkFormModal = document.getElementById('social-link-form-modal');
-            const editSocialLinksBtn = document.getElementById('edit-social-links-btn');
-            const closeSocialLinksBtn = document.getElementById('close-social-links-modal-btn');
-            const addSocialLinkBtn = document.getElementById('add-social-link-btn');
-            const saveSocialLinkBtn = document.getElementById('save-social-link-edit-btn');
-            const cancelSocialLinkBtn = document.getElementById('cancel-social-link-edit-btn');
-            const deleteSocialLinkBtn = document.getElementById('delete-social-link-btn');
-            const socialLinkModalTitle = document.getElementById('social-link-modal-title');
-            const socialLinkTypeInput = document.getElementById('social-link-type-input');
-            const socialLinkUrlInput = document.getElementById('social-link-url-input');
-            let socialLinksData = [];
-            let currentSocialLinkId = null;
-            const defaultSocialLinks = [{ id: 'social-' + Date.now(), type: 'youtube', url: '#' }];
-
-            const svgIcons = {
-                youtube: `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.78 22 12 22 12s0 3.22-.42 4.814a2.506 2.506 0 0 1-1.768 1.768c-1.594.42-7.812.42-7.812.42s-6.218 0-7.812-.42a2.506 2.506 0 0 1-1.768-1.768C2 15.22 2 12 2 12s0-3.22.42-4.814a2.506 2.506 0 0 1 1.768-1.768C5.782 5 12 5 12 5s6.218 0 7.812.418ZM15.194 12 10 15.194v-6.388L15.194 12Z" clip-rule="evenodd" /></svg>`,
-                tiktok: `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-2.43.03-4.83-.95-6.43-2.98-1.55-1.99-2.3-4.47-2.1-6.93.2-2.51 1.25-4.88 2.9-6.66 1.81-1.95 4.3-3.13 6.9-3.24.01 2.11-.01 4.22.02 6.33-.02 1.14-.32 2.25-.87 3.23-.73 1.34-1.95 2.36-3.41 2.65-1.4.28-2.89-.04-4.11-.83-.62-.4-1.15-.9-1.59-1.48-.19-.24-.4-.51-.58-.78-.01-.02.02-.03.03-.03.22-.18.44-.35.67-.5.2-.13.41-.25.6-.38.2-.13.39-.27.59-.4.23-.15.47-.29.7-.43.53-.33 1.1-.57 1.68-.74.7-.2 1.42-.28 2.14-.27.02-2.13.01-4.26.01-6.39.01-1.37.01-2.73 0-4.1z"></path></svg>`,
-                x: `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.71v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"/></svg>`
-            };
-
             function saveSocialLinks() { localStorage.setItem('socialLinks', JSON.stringify(socialLinksData)); }
-
             function renderSocialLinks() {
                 const saved = localStorage.getItem('socialLinks');
                 socialLinksData = saved ? JSON.parse(saved) : defaultSocialLinks;
-                const container = document.getElementById('social-links-container');
+                document.getElementById('social-links-container').innerHTML = socialLinksData.map(l => `<a href="${l.url}" target="_blank" class="hover:text-red-400 transition-colors">${svgIcons[l.type] || ''}</a>`).join('');
                 const listContainer = document.getElementById('social-links-list');
-                container.innerHTML = '';
                 listContainer.innerHTML = '';
-
-                socialLinksData.forEach(link => {
-                    container.innerHTML += `<a href="${link.url}" target="_blank" class="hover:text-red-400 transition-colors">${svgIcons[link.type] || ''}</a>`;
-                    if(isEditMode) {
+                if(isEditMode) {
+                    socialLinksData.forEach(link => {
                         listContainer.innerHTML += `<div class="flex items-center justify-between bg-gray-800 p-2 rounded"><div class="flex items-center space-x-3"><div class="w-8 h-8 text-white">${svgIcons[link.type] || ''}</div><input type="text" value="${link.url}" class="bg-transparent text-gray-300 w-64 truncate" readonly></div><div class="flex items-center space-x-2"><button class="edit-social-link-btn p-2 bg-gray-700 rounded-full hover:bg-blue-500" data-id="${link.id}"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 5.232z"></path></svg></button><button class="delete-social-link-btn p-2 bg-gray-700 rounded-full hover:bg-red-500" data-id="${link.id}"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button></div></div>`;
-                    }
-                });
-                if(isEditMode) attachSocialLinkListeners();
+                    });
+                    attachSocialLinkListeners();
+                }
             }
-
             function openSocialLinkModal(linkId = null) {
                 currentSocialLinkId = linkId;
+                const delBtn = document.getElementById('delete-social-link-btn');
                 if(linkId) {
-                    socialLinkModalTitle.textContent = "SNSリンクの編集";
+                    elements.socialLinkModalTitle.textContent = "SNSリンクの編集";
                     const link = socialLinksData.find(l => l.id === linkId);
-                    socialLinkTypeInput.value = link.type;
-                    socialLinkUrlInput.value = link.url;
-                    deleteSocialLinkBtn.classList.remove('hidden');
+                    elements.socialLinkTypeInput.value = link.type;
+                    elements.socialLinkUrlInput.value = link.url;
+                    delBtn.classList.remove('hidden');
                 } else {
-                    socialLinkModalTitle.textContent = "新規リンクを追加";
-                    socialLinkTypeInput.value = 'youtube';
-                    socialLinkUrlInput.value = '';
-                    deleteSocialLinkBtn.classList.add('hidden');
+                    elements.socialLinkModalTitle.textContent = "新規リンクを追加";
+                    elements.socialLinkTypeInput.value = 'youtube';
+                    elements.socialLinkUrlInput.value = '';
+                    delBtn.classList.add('hidden');
                 }
-                socialLinkFormModal.classList.remove('hidden');
+                elements.socialLinkFormModal.classList.remove('hidden');
             }
-
             function attachSocialLinkListeners() {
                 document.querySelectorAll('.edit-social-link-btn').forEach(btn => btn.onclick = e => openSocialLinkModal(e.currentTarget.dataset.id));
                 document.querySelectorAll('.delete-social-link-btn').forEach(btn => btn.onclick = async e => {
                     if (await showConfirm('このリンクを削除しますか？')) {
                         socialLinksData = socialLinksData.filter(link => link.id !== e.currentTarget.dataset.id);
-                        saveSocialLinks();
-                        renderSocialLinks();
+                        saveSocialLinks(); renderSocialLinks();
                     }
                 });
             }
             
-            if(isEditMode) {
-                editSocialLinksBtn.addEventListener('click', () => socialLinksManageModal.classList.remove('hidden'));
-                closeSocialLinksBtn.addEventListener('click', () => socialLinksManageModal.classList.add('hidden'));
-                addSocialLinkBtn.addEventListener('click', () => openSocialLinkModal());
+            function initializeEditableComponents() {
+                attachImageEditListeners();
+                attachMovieActionListeners();
+                attachNewsActionListeners();
+                attachMemberActionListeners();
 
-                cancelSocialLinkBtn.addEventListener('click', () => socialLinkFormModal.classList.add('hidden'));
-                saveSocialLinkBtn.addEventListener('click', () => {
-                    if(currentSocialLinkId) { // Edit existing
-                        const index = socialLinksData.findIndex(l => l.id === currentSocialLinkId);
-                        if(index > -1) {
-                            socialLinksData[index].type = socialLinkTypeInput.value;
-                            socialLinksData[index].url = socialLinkUrlInput.value;
-                        }
-                    } else { // Add new
-                        socialLinksData.push({ id: 'social-' + Date.now(), type: socialLinkTypeInput.value, url: socialLinkUrlInput.value });
+                const editCatchphraseBtn = document.getElementById('edit-catchphrase-btn');
+                if (editCatchphraseBtn) {
+                     editCatchphraseBtn.addEventListener('click', () => {
+                        document.getElementById('catchphrase-input').value = elements.typewriterEl.textContent;
+                        elements.catchphraseModal.classList.remove('hidden');
+                    });
+                }
+                
+                const editSocialLinksBtn = document.getElementById('edit-social-links-btn');
+                if(editSocialLinksBtn) {
+                     editSocialLinksBtn.addEventListener('click', () => elements.socialLinksManageModal.classList.remove('hidden'));
+                }
+            }
+            
+            function initializeStaticEventListeners() {
+                elements.cancelImageBtn.addEventListener('click', () => { elements.imageModal.classList.add('hidden'); });
+                elements.saveImageBtn.addEventListener('click', async () => {
+                    const file = elements.fileInput.files[0];
+                    if (file && currentImageTargetId) {
+                        await setImageInDB(`${currentImageTargetId}-image`, file);
+                        await initializeDataAndRender();
                     }
-                    saveSocialLinks();
-                    renderSocialLinks();
-                    socialLinkFormModal.classList.add('hidden');
+                    elements.imageModal.classList.add('hidden');
+                });
+                if (elements.addMovieBtn) elements.addMovieBtn.addEventListener('click', () => { moviesData.push({ id: 'movie-' + Date.now(), url: '', title: 'COMING SOON...' }); saveMovies(); renderMovies(); });
+                elements.cancelMovieBtn.addEventListener('click', () => { elements.movieModal.classList.add('hidden'); });
+                elements.saveMovieBtn.addEventListener('click', () => {
+                    if (currentMovieId) {
+                        const index = moviesData.findIndex(m => m.id === currentMovieId);
+                        if(index > -1) {
+                            moviesData[index].url = elements.movieUrlInput.value;
+                            moviesData[index].title = elements.movieTitleInput.value;
+                        }
+                        saveMovies(); renderMovies();
+                    }
+                    elements.movieModal.classList.add('hidden');
+                });
+                elements.deleteMovieBtn.addEventListener('click', async () => {
+                    if(currentMovieId && await showConfirm('この動画を削除してもよろしいですか？')) {
+                        moviesData = moviesData.filter(m => m.id !== currentMovieId);
+                        saveMovies(); renderMovies();
+                        elements.movieModal.classList.add('hidden');
+                    }
+                });
+                if(elements.addNewsBtn) elements.addNewsBtn.addEventListener('click', () => openNewsModal());
+                elements.cancelNewsBtn.addEventListener('click', () => elements.newsModal.classList.add('hidden'));
+                elements.saveNewsBtn.addEventListener('click', () => {
+                    const item = { date: elements.newsDateInput.value, title: elements.newsTitleInput.value, desc: elements.newsDescInput.value, category: elements.newsCategoryInput.value };
+                    if (currentNewsId) {
+                        const index = newsData.findIndex(i => i.id === currentNewsId);
+                        if (index > -1) newsData[index] = { ...newsData[index], ...item };
+                    } else { newsData.unshift({ id: 'news-' + Date.now(), ...item }); }
+                    saveNews(); renderNews(); elements.newsModal.classList.add('hidden');
+                });
+                elements.deleteNewsBtn.addEventListener('click', async () => {
+                    if (currentNewsId && await showConfirm('このニュースを削除してもよろしいですか？')) {
+                        newsData = newsData.filter(i => i.id !== currentNewsId);
+                        saveNews(); renderNews();
+                        elements.newsModal.classList.add('hidden');
+                    }
+                });
+                if (elements.cancelMemberBtn) elements.cancelMemberBtn.addEventListener('click', () => elements.memberModal.classList.add('hidden'));
+                if (elements.saveMemberBtn) elements.saveMemberBtn.addEventListener('click', () => {
+                    if(currentMemberId) {
+                        const index = membersData.findIndex(m => m.id === currentMemberId);
+                        if (index > -1) {
+                            membersData[index].name = elements.memberNameInput.value;
+                            membersData[index].info1 = elements.memberInfo1Input.value;
+                            membersData[index].info2 = elements.memberInfo2Input.value;
+                            membersData[index].info3 = elements.memberInfo3Input.value;
+                        }
+                        saveMembersData(); renderMembers();
+                    }
+                    elements.memberModal.classList.add('hidden');
+                });
+            
+                if (elements.membersGrid) new Sortable(elements.membersGrid, { animation: 150, onEnd: () => { if(!isEditMode) return; const order = Array.from(elements.membersGrid.children).map(c => c.dataset.memberId); localStorage.setItem('membersOrder', JSON.stringify(order)); membersData.sort((a,b) => order.indexOf(a.id) - order.indexOf(b.id)); saveMembersData(); } });
+                
+                const cancelCatchphraseBtn = document.getElementById('cancel-catchphrase-edit-btn');
+                const saveCatchphraseBtn = document.getElementById('save-catchphrase-edit-btn');
+                if (cancelCatchphraseBtn) cancelCatchphraseBtn.addEventListener('click', () => elements.catchphraseModal.classList.add('hidden'));
+                if (saveCatchphraseBtn) saveCatchphraseBtn.addEventListener('click', () => {
+                    const newText = document.getElementById('catchphrase-input').value;
+                    elements.typewriterEl.textContent = newText;
+                    localStorage.setItem('catchphrase', newText);
+                    elements.catchphraseModal.classList.add('hidden');
+                    elements.typewriterEl.style.animation = 'none'; elements.typewriterEl.offsetHeight; elements.typewriterEl.style.animation = null;
                 });
                 
-                deleteSocialLinkBtn.addEventListener('click', async () => {
+                const closeSocialLinksBtn = document.getElementById('close-social-links-modal-btn');
+                const addSocialLinkBtn = document.getElementById('add-social-link-btn');
+                const cancelSocialLinkBtn = document.getElementById('cancel-social-link-edit-btn');
+                const saveSocialLinkBtn = document.getElementById('save-social-link-edit-btn');
+                const deleteSocialLinkBtn = document.getElementById('delete-social-link-btn');
+                if(closeSocialLinksBtn) closeSocialLinksBtn.addEventListener('click', () => elements.socialLinksManageModal.classList.add('hidden'));
+                if(addSocialLinkBtn) addSocialLinkBtn.addEventListener('click', () => openSocialLinkModal());
+                if(cancelSocialLinkBtn) cancelSocialLinkBtn.addEventListener('click', () => elements.socialLinkFormModal.classList.add('hidden'));
+                if(saveSocialLinkBtn) saveSocialLinkBtn.addEventListener('click', () => {
+                    const type = elements.socialLinkTypeInput.value, url = elements.socialLinkUrlInput.value;
+                    if(currentSocialLinkId) { 
+                        const index = socialLinksData.findIndex(l => l.id === currentSocialLinkId);
+                        if(index > -1) { socialLinksData[index].type = type; socialLinksData[index].url = url; }
+                    } else { socialLinksData.push({ id: 'social-' + Date.now(), type, url }); }
+                    saveSocialLinks(); renderSocialLinks(); elements.socialLinkFormModal.classList.add('hidden');
+                });
+                if(deleteSocialLinkBtn) deleteSocialLinkBtn.addEventListener('click', async () => {
                     if(currentSocialLinkId && await showConfirm('このリンクを削除しますか？')) {
                         socialLinksData = socialLinksData.filter(l => l.id !== currentSocialLinkId);
-                        saveSocialLinks();
-                        renderSocialLinks();
-                        socialLinksManageModal.classList.add('hidden'); // Close manage modal as well
-                        socialLinkFormModal.classList.add('hidden');
+                        saveSocialLinks(); renderSocialLinks();
+                        elements.socialLinksManageModal.classList.add('hidden'); 
+                        elements.socialLinkFormModal.classList.add('hidden');
                     }
                 });
             }
 
-            // Initial Load
-            navigateTo('home');
-            renderMembers();
-            await loadImages();
-            renderMovies();
-            renderNews();
-            loadCatchphrase();
-            renderSocialLinks();
-        });
+            async function initializeDataAndRender() {
+                renderMembers();
+                renderMovies();
+                renderNews();
+                loadCatchphrase();
+                renderSocialLinks();
+                await loadImages();
+            }
+        }
     </script>
 </body>
 </html>
