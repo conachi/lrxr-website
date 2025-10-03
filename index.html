@@ -584,8 +584,7 @@
 
         function main() {
             // --- STATE & CONFIG ---
-            // 編集モードでの確認のため、値を `true` に固定します。
-            let isEditMode = true;
+            let isEditMode = new URLSearchParams(window.location.search).get('mode') === 'edit';
             let db;
             
             let newsData = [], membersData = [], moviesData = [], socialLinksData = [];
@@ -1033,3 +1032,4 @@
     </script>
 </body>
 </html>
+
