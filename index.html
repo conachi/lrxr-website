@@ -68,7 +68,7 @@
 
         /* --- 背景 & オーバーレイ --- */
         .hero-bg {
-            background-image: url('https://placehold.co/1920x1080/000000/ffffff?text=LOUD+RABBIT+x+ROSES');
+            background-image: url('https://placehold.co/1920x1080/000000/ff0000?text=LOUD+RABBIT+x+ROSES');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -644,18 +644,22 @@
             };
 
             const defaultNewsData = [
+                { id: 'news-0', date: '2025.10.03', title: '新MV「星座になれたら」公開！', desc: '公式サイトのLATEST MOVIEセクションにて、新MV「星座になれたら」のライブ映像が公開されました。', category: 'MEDIA' },
                 { id: 'news-1', date: '2025.10.01', title: '1st Single "Rebellion Code" 配信開始', desc: 'デビュー曲となる「Rebellion Code」が各種音楽配信サービスにてリリース。', category: 'RELEASE' },
                 { id: 'news-2', date: '2025.09.28', title: '公式サイトオープン', desc: 'LOUD RABBIT x ROSESの公式ウェブサイトが本日より公開されました。', category: 'OTHER' },
                 { id: 'news-3', date: '2025.09.25', title: '公式YouTubeチャンネル開設', desc: '初のMVを公開予定。チャンネル登録をしてお待ちください。', category: 'MEDIA' },
                 { id: 'news-4', date: '2025.09.20', title: 'ファーストグッズ "GENESIS" Collection 発売決定', desc: '公式サイト開設を記念し、初のオフィシャルグッズの発売が決定。詳細はGOODSページにて近日公開。', category: 'GOODS' }
             ];
             const defaultMembersData = [
-                 { id: 'yuki', name: 'YUKI', info1: '', info2: '', info3: '' }, { id: 'akari', name: 'AKARI', info1: '', info2: '', info3: '' },
-                 { id: 'mei', name: 'MEI', info1: '', info2: '', info3: '' }, { id: 'riko', name: 'RIKO', info1: '', info2: '', info3: '' },
-                 { id: 'sora', name: 'SORA', info1: '', info2: '', info3: '' }
+                 { id: 'hitori', name: '後藤 ひとり', info1: 'パート: ヴォーカル & ギター', info2: '誕生日: 2月21日', info3: '好きなもの: 暗い場所、ギター' }, 
+                 { id: 'nijika', name: '伊地知 虹夏', info1: 'パート: ドラム', info2: '誕生日: 5月29日', info3: '好きなもの: 結束バンド' },
+                 { id: 'ryo', name: '山田 リョウ', info1: 'パート: ベース', info2: '誕生日: 9月18日', info3: '好きなもの: 変わったもの、草' }, 
+                 { id: 'ikuyo', name: '喜多 郁代', info1: 'パート: ギター & ヴォーカル', info2: '誕生日: 4月21日', info3: '好きなもの: カラオケ、SNS' },
+                 { id: 'new-member-1', name: 'NEW MEMBER', info1: 'パート:', info2: '誕生日:', info3: '好きなもの:' },
+                 { id: 'new-member-2', name: 'NEW MEMBER', info1: 'パート:', info2: '誕生日:', info3: '好きなもの:' }
             ];
-            const defaultMoviesData = [ { id: 'movie-' + Date.now(), url: '', title: 'COMING SOON...' } ];
-            const defaultSocialLinks = [{ id: 'social-' + Date.now(), type: 'youtube', url: '#' }];
+            const defaultMoviesData = [ { id: 'movie-1669892400000', url: 'https://www.youtube.com/embed/kEw-FKLEGv0', title: '結束バンド「星座になれたら」 LIVE at 秀華祭' } ];
+            const defaultSocialLinks = [{ id: 'social-1669892400001', type: 'youtube', url: 'https://www.youtube.com/@aniplex' }];
             const svgIcons = {
                 youtube: `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.78 22 12 22 12s0 3.22-.42 4.814a2.506 2.506 0 0 1-1.768 1.768c-1.594.42-7.812.42-7.812.42s-6.218 0-7.812-.42a2.506 2.506 0 0 1-1.768-1.768C2 15.22 2 12 2 12s0-3.22.42-4.814a2.506 2.506 0 0 1 1.768-1.768C5.782 5 12 5 12 5s6.218 0 7.812.418ZM15.194 12 10 15.194v-6.388L15.194 12Z" clip-rule="evenodd" /></svg>`,
                 tiktok: `<svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-2.43.03-4.83-.95-6.43-2.98-1.55-1.99-2.3-4.47-2.1-6.93.2-2.51 1.25-4.88 2.9-6.66 1.81-1.95 4.3-3.13 6.9-3.24.01 2.11-.01 4.22.02 6.33-.02 1.14-.32 2.25-.87 3.23-.73 1.34-1.95 2.36-3.41 2.65-1.4.28-2.89-.04-4.11-.83-.62-.4-1.15-.9-1.59-1.48-.19-.24-.4-.51-.58-.78-.01-.02.02-.03.03-.03.22-.18.44-.35.67-.5.2-.13.41-.25.6-.38.2-.13.39-.27.59-.4.23-.15.47-.29.7-.43.53-.33 1.1-.57 1.68-.74.7-.2 1.42-.28 2.14-.27.02-2.13.01-4.26.01-6.39.01-1.37.01-2.73 0-4.1z"></path></svg>`,
@@ -813,8 +817,12 @@
                 document.querySelectorAll('.edit-news-btn').forEach(btn => btn.onclick = e => openNewsModal(e.currentTarget.dataset.id));
                 document.querySelectorAll('.delete-news-btn').forEach(btn => btn.onclick = async e => {
                     if (await showConfirm('このニュースを削除してもよろしいですか？')) {
-                        newsData = newsData.filter(item => item.id !== e.currentTarget.dataset.id);
-                        saveNews(); renderNews();
+                        if (e.currentTarget && e.currentTarget.dataset) {
+                            const idToDelete = e.currentTarget.dataset.id;
+                            newsData = newsData.filter(item => item && item.id !== idToDelete);
+                            saveNews();
+                            renderNews();
+                        }
                     }
                 });
             }
@@ -829,7 +837,7 @@
                 }
                 elements.membersGrid.innerHTML = membersData.map(member => `
                     <div data-member-id="${member.id}" class="bg-gray-900/50 border border-green-500/30 rounded-lg overflow-hidden flex flex-col cursor-grab">
-                        <div class="relative group"><img id="profile-${member.id}-visual" src="https://placehold.co/600x600/000000/ffffff?text=${member.name.toUpperCase()}" alt="${member.name}" class="w-full h-auto"><button class="edit-image-btn edit-control absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100" data-target="profile-${member.id}-visual">編集</button></div>
+                        <div class="relative group"><img id="profile-${member.id}-visual" src="https://placehold.co/600x600/000000/ffffff?text=${member.name}" alt="${member.name}" class="w-full h-auto"><button class="edit-image-btn edit-control absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100" data-target="profile-${member.id}-visual">編集</button></div>
                         <div class="p-6 flex-grow relative group/info">
                             <h4 class="text-2xl font-orbitron text-green-400 member-name text-center">${member.name}</h4>
                             <div class="mt-4 text-gray-300 space-y-2 text-sm text-center">
@@ -893,8 +901,12 @@
                 document.querySelectorAll('.edit-social-link-btn').forEach(btn => btn.onclick = e => openSocialLinkModal(e.currentTarget.dataset.id));
                 document.querySelectorAll('.delete-social-link-btn').forEach(btn => btn.onclick = async e => {
                     if (await showConfirm('このリンクを削除しますか？')) {
-                        socialLinksData = socialLinksData.filter(link => link.id !== e.currentTarget.dataset.id);
-                        saveSocialLinks(); renderSocialLinks();
+                        if (e.currentTarget && e.currentTarget.dataset) {
+                            const idToDelete = e.currentTarget.dataset.id;
+                            socialLinksData = socialLinksData.filter(link => link && link.id !== idToDelete);
+                            saveSocialLinks();
+                            renderSocialLinks();
+                        }
                     }
                 });
             }
